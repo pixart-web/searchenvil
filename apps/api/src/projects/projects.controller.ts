@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@n
 import { OrgRolesGuard } from "../auth/guards/org-roles.guard";
 import { RequireRole } from "../auth/decorators/require-role.decorator";
 import { ProjectsService } from "./projects.service";
+import { ProjectOverviewService } from "./project-overview.service";
 import { CreateProjectDto } from "./dto/create-project.dto";
 import { UpdateProjectDto } from "./dto/update-project.dto";
 
@@ -9,7 +10,10 @@ import { UpdateProjectDto } from "./dto/update-project.dto";
 @UseGuards(OrgRolesGuard)
 @RequireRole("MEMBER")
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  constructor(
+    private readonly projectsService: ProjectsService,
+    private readonly projectOverviewService: ProjectOverviewService,
+  ) {}
 
   @Get()
   list(@Param("organizationId") organizationId: string) {
@@ -24,6 +28,14 @@ export class ProjectsController {
   @Get(":projectId")
   get(@Param("organizationId") organizationId: string, @Param("projectId") projectId: string) {
     return this.projectsService.getOrThrow(organizationId, projectId);
+  }
+
+  @Get(":projectId/overview")
+  getOverview(
+    @Param("organizationId") organizationId: string,
+    @Param("projectId") projectId: string,
+  ) {
+    return this.projectOverviewService.getOverview(organizationId, projectId);
   }
 
   @Patch(":projectId")

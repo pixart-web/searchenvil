@@ -63,6 +63,13 @@ export default function OnboardingPage(): React.ReactElement | null {
         `/organizations/${organization.id}/projects/${project.id}/sites`,
         { method: "POST", body: { displayName: projectName, rootUrl: websiteUrl } },
       );
+      // Fire the first crawl right away — "Run first audit" is the whole
+      // point of onboarding (section 21). If this fails, the project/site
+      // still exist and a crawl can be started later from the project page.
+      await apiFetch(
+        `/organizations/${organization.id}/projects/${project.id}/sites/${site.id}/crawls`,
+        { method: "POST", body: {} },
+      ).catch(() => undefined);
       setCreatedSite({ project, site });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
@@ -93,9 +100,9 @@ export default function OnboardingPage(): React.ReactElement | null {
             </p>
             <h1 className="text-xl font-semibold text-steel-100">{createdSite.project.name} is ready.</h1>
             <p className="text-sm text-steel-400">
-              We&apos;ve added {createdSite.site.rootUrl} to your project. Crawling and Search
-              Health scoring arrive in a later build phase — this project is ready for that once
-              it does.
+              We&apos;re crawling {createdSite.site.rootUrl} now. Search Health and Forge
+              Priorities will appear on the project page once the audit finishes — usually within
+              a minute or two for a small site.
             </p>
             <Button onClick={() => router.push(`/app/projects/${createdSite.project.id}`)}>
               View project
