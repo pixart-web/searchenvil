@@ -1,20 +1,18 @@
 import { createTypedWorker, QUEUE_NAMES, type CrawlJobData } from "@searchenvil/queue";
+import { runCrawl } from "@searchenvil/crawler";
 import { prisma } from "@searchenvil/database";
 import { logger } from "./logger";
+import { processCrawlJob } from "./crawl/process-crawl-job";
 
-const REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6379";
+const REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6380";
 const CONCURRENCY = Number(process.env.WORKER_CONCURRENCY ?? 5);
 
-/**
- * Phase 01 placeholder processor: proves the worker can pull jobs off Redis
- * and reach Postgres. Replaced by the real crawl pipeline in Phase 05/06.
- */
-async function processCrawlJob(job: { id?: string; data: CrawlJobData }): Promise<void> {
+async function handleCrawlJob(job: { id?: string; data: CrawlJobData }): Promise<void> {
   logger.info("processing crawl job", { jobId: job.id, crawlId: job.data.crawlId });
-  await prisma.$queryRaw`SELECT 1`;
+  await processCrawlJob({ prisma, runCrawl }, job.data.crawlId);
 }
 
-const crawlWorker = createTypedWorker(QUEUE_NAMES.CRAWL, REDIS_URL, processCrawlJob, {
+const crawlWorker = createTypedWorker(QUEUE_NAMES.CRAWL, REDIS_URL, handleCrawlJob, {
   concurrency: CONCURRENCY,
 });
 

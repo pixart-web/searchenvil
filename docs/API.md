@@ -78,6 +78,26 @@ Nested under a project: `/organizations/:organizationId/projects/:projectId/site
 fetched or resolved here — SSRF protection applies when the crawler actually requests it
 (Phase 05), not at this metadata-only stage.
 
+## Crawls
+
+Nested under a site: `/organizations/:organizationId/projects/:projectId/sites/:siteId/crawls`.
+`MEMBER` for everything below.
+
+| Method | Path | Description |
+|---|---|---|
+| POST | `.../crawls` | Start a crawl `{ maxPages? (1-1000), maxDepth? (1-20) }` — creates a `PENDING` `Crawl` row and enqueues a BullMQ job; the worker (Phase 06) picks it up asynchronously |
+| GET | `.../crawls` | List crawls for a site, newest first |
+| GET | `.../crawls/:crawlId` | Crawl status/progress (`status`, `pagesCrawled`, timestamps, `errorMessage`) |
+| PATCH | `.../crawls/:crawlId/cancel` | Request cancellation — idempotent; a no-op if the crawl is already in a terminal state |
+| GET | `.../crawls/:crawlId/pages` | Paginated (`?page=&pageSize=`, max 100/page) list of crawled pages |
+| GET | `.../crawls/:crawlId/pages/:pageId` | A single page's full facts plus its images, structured data, and outbound links |
+
+`Crawl.status` progresses `PENDING → DISCOVERING → CRAWLING → COMPLETED`, or `FAILED` /
+`CANCELLED`. See `docs/CRAWLER.md` and `docs/ARCHITECTURE.md` for what happens at each stage.
+Cancellation is polled by the worker (checked every ~2s against the DB), so there can be a short
+delay between requesting cancellation and the crawl actually stopping — in-flight page fetches
+are allowed to finish, only new ones are prevented from starting.
+
 ## Health
 
 | Method | Path | Auth | Description |

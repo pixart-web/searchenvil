@@ -8,5 +8,6 @@ import { SitesService } from "./sites.service";
   imports: [AuthModule, ProjectsModule],
   controllers: [SitesController],
   providers: [SitesService],
+  exports: [SitesService],
 })
 export class SitesModule {}

@@ -12,17 +12,21 @@ import { SessionAuthGuard } from "./auth/guards/session-auth.guard";
 import { OrganizationsModule } from "./organizations/organizations.module";
 import { ProjectsModule } from "./projects/projects.module";
 import { SitesModule } from "./sites/sites.module";
+import { CrawlsModule } from "./crawls/crawls.module";
+import { QueueModule } from "./common/queue/queue.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     PrismaModule,
+    QueueModule,
     HealthModule,
     AuthModule,
     OrganizationsModule,
     ProjectsModule,
     SitesModule,
+    CrawlsModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },

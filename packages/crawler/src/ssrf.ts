@@ -133,8 +133,12 @@ type NodeLookupCallback = (
  * same IP address that gets validated here is the one the socket actually
  * connects to — an attacker can't pass validation with one DNS answer and
  * have the connection use a different (rebound) one.
+ *
+ * `resolveFn` defaults to the real `dns.lookup` and exists as an injection
+ * point so tests can supply deterministic, offline DNS answers instead of
+ * depending on real network resolution (see docs/TESTING.md).
  */
-export function createSafeLookup(): typeof dnsLookup {
+export function createSafeLookup(resolveFn: typeof dnsLookup = dnsLookup): typeof dnsLookup {
   return function safeLookup(
     hostname: string,
     optionsOrCallback: LookupOptions | LookupOneOptions | LookupAllOptions | NodeLookupCallback,
@@ -144,12 +148,18 @@ export function createSafeLookup(): typeof dnsLookup {
       | NodeLookupCallback
       | undefined;
     const options = typeof optionsOrCallback === "function" ? {} : optionsOrCallback;
+    // The caller (Node's net/tls connect internals, via undici) decides
+    // whether it wants the array form or the single-result form — we must
+    // reply in whichever shape it asked for, or its own response parsing
+    // breaks in confusing ways downstream (surfaces as unrelated-looking
+    // connect errors, not an obvious "wrong callback shape" failure).
+    const wantsAll = (options as LookupAllOptions).all === true;
 
     if (!cb) {
       throw new TypeError("callback is required");
     }
 
-    dnsLookup(hostname, { ...options, all: true } as LookupAllOptions, (err, addresses) => {
+    resolveFn(hostname, { ...options, all: true } as LookupAllOptions, (err, addresses) => {
       if (err) {
         cb(err, []);
         return;
@@ -165,8 +175,11 @@ export function createSafeLookup(): typeof dnsLookup {
         cb(new Error(`DNS lookup for ${hostname} returned no addresses.`), []);
         return;
       }
-      // Mimic dns.lookup's default (all:false) single-result contract for callers/undici.
-      cb(null, first.address, first.family);
+      if (wantsAll) {
+        cb(null, list);
+      } else {
+        cb(null, first.address, first.family);
+      }
     });
   } as typeof dnsLookup;
 }

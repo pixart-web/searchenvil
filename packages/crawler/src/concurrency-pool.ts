@@ -13,6 +13,7 @@ export class ConcurrencyPool<T> {
   constructor(
     private readonly limit: number,
     private readonly worker: (item: T, pool: ConcurrencyPool<T>) => Promise<void>,
+    private readonly signal?: AbortSignal,
   ) {}
 
   enqueue(item: T): void {
@@ -30,7 +31,11 @@ export class ConcurrencyPool<T> {
   }
 
   private pump(): void {
-    while (this.active < this.limit && this.queue.length > 0) {
+    if (this.signal?.aborted && this.active === 0) {
+      this.resolveIdle?.();
+      return;
+    }
+    while (!this.signal?.aborted && this.active < this.limit && this.queue.length > 0) {
       const item = this.queue.shift();
       if (item === undefined) break;
       this.active++;

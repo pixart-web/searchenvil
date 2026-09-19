@@ -35,6 +35,9 @@ importers:
       '@nestjs/throttler':
         specifier: ^6.3.0
         version: 6.7.0(@nestjs/common@10.4.22(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.22)(reflect-metadata@0.2.2)
+      '@searchenvil/crawler':
+        specifier: workspace:*
+        version: link:../../packages/crawler
       '@searchenvil/database':
         specifier: workspace:*
         version: link:../../packages/database
@@ -44,6 +47,9 @@ importers:
       '@searchenvil/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      bullmq:
+        specifier: ^5.34.5
+        version: 5.81.5
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1

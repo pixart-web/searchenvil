@@ -56,4 +56,20 @@ describe("ConcurrencyPool", () => {
     const pool = new ConcurrencyPool<number>(2, async () => {});
     await expect(pool.run([])).resolves.toBeUndefined();
   });
+
+  it("stops picking up new work once the signal is aborted", async () => {
+    const controller = new AbortController();
+    const processed: number[] = [];
+    const pool = new ConcurrencyPool<number>(
+      1,
+      async (item) => {
+        processed.push(item);
+        if (item === 1) controller.abort();
+        await delay(1);
+      },
+      controller.signal,
+    );
+    await pool.run([1, 2, 3, 4]);
+    expect(processed).toEqual([1]);
+  });
 });
