@@ -2,6 +2,43 @@
 
 Lightweight ADRs. Newest first.
 
+## ADR-006: Turborepo tasks declare their own env var dependencies explicitly
+
+**Status:** Accepted (Phase 03)
+
+**Context:** Turbo 2.x filters which environment variables a task's child process sees based on
+declared inputs. `pnpm build` at the repo root was intermittently failing `apps/web`'s `next
+build` with an obscure prerendering error (`<Html> should not be imported outside of
+pages/_document`) — the actual cause was `NODE_ENV=development` from a locally sourced `.env`
+leaking into the build process and causing a React dev/prod module mismatch, only reproducible
+when running through Turbo (a direct `pnpm --filter @searchenvil/web run build` was unaffected).
+
+**Decision:** `apps/web`'s `build` script pins `NODE_ENV=production next build` explicitly rather
+than trusting the ambient shell environment. `turbo.json`'s `test`/`test:e2e` tasks declare
+exactly the env vars they need (`DATABASE_URL`, `REDIS_URL`, session config) instead of using a
+blanket `envMode: "loose"`, so each task's environment is explicit and reviewable rather than
+"whatever the invoking shell happened to have."
+
+**Consequences:** Root-level `pnpm build`/`pnpm test`/`pnpm test:e2e` now behave identically
+regardless of what's in the developer's shell environment — verified by reproducing the failure,
+fixing it, and rerunning the full pipeline clean multiple times in a row.
+
+## ADR-005: Session cookies (server-revocable), not JWTs
+
+**Status:** Accepted (Phase 03)
+
+**Context:** Needed to choose an authentication token strategy for the API.
+
+**Decision:** Opaque random session tokens, stored server-side as a SHA-256 hash
+(`Session.tokenHash`) with an expiry, delivered via an `httpOnly` cookie. CSRF is handled via a
+double-submit cookie (`searchenvil_csrf`, non-httpOnly, echoed in an `x-csrf-token` header on
+mutating requests). See `docs/SECURITY.md`.
+
+**Consequences:** Every request that needs the current user costs a DB lookup (acceptable at this
+scale; can add a short-lived cache later if it becomes a bottleneck). In exchange, logout and
+password-reset can truly invalidate a session immediately — a JWT would need a revocation list to
+get the same guarantee, which is more moving parts for no benefit at this stage.
+
 ## ADR-004: Redis/BullMQ job payloads carry IDs only, never full state
 
 **Status:** Accepted (Phase 01)

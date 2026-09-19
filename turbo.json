@@ -18,10 +18,12 @@
     },
     "test": {
       "dependsOn": ["^build"],
+      "env": ["DATABASE_URL", "REDIS_URL"],
       "outputs": ["coverage/**"]
     },
     "test:e2e": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build"],
+      "env": ["DATABASE_URL", "REDIS_URL", "AUTH_SESSION_COOKIE_NAME", "AUTH_SESSION_TTL_DAYS"]
     },
     "clean": {
       "cache": false

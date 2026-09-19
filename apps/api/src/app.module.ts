@@ -7,6 +7,9 @@ import { PrismaModule } from "./common/prisma/prisma.module";
 import { RequestIdMiddleware } from "./common/middleware/request-id.middleware";
 import { GlobalExceptionFilter } from "./common/filters/http-exception.filter";
 import { HealthModule } from "./health/health.module";
+import { AuthModule } from "./auth/auth.module";
+import { SessionAuthGuard } from "./auth/guards/session-auth.guard";
+import { OrganizationsModule } from "./organizations/organizations.module";
 
 @Module({
   imports: [
@@ -14,10 +17,13 @@ import { HealthModule } from "./health/health.module";
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     PrismaModule,
     HealthModule,
+    AuthModule,
+    OrganizationsModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: SessionAuthGuard },
   ],
 })
 export class AppModule implements NestModule {

@@ -1,9 +1,8 @@
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
-import { ValidationPipe } from "@nestjs/common";
 import helmet from "helmet";
-import cookieParser from "cookie-parser";
 import { AppModule } from "./app.module";
+import { configureApp } from "./configure-app";
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
@@ -11,19 +10,11 @@ async function bootstrap(): Promise<void> {
   });
 
   app.use(helmet());
-  app.use(cookieParser());
   app.enableCors({
     origin: process.env.WEB_URL ?? "http://localhost:3000",
     credentials: true,
   });
-  app.setGlobalPrefix("api/v1", { exclude: ["health", "ready"] });
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  configureApp(app);
 
   app.enableShutdownHooks();
 

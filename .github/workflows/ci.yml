@@ -67,3 +67,6 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: End-to-end / API tests
+        run: pnpm test:e2e

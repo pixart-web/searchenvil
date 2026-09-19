@@ -1,1 +1,4 @@
-{ "extends": ["@searchenvil/eslint-config/nest"] }
+{
+  "extends": ["@searchenvil/eslint-config/nest"],
+  "parserOptions": { "project": "./tsconfig.eslint.json" }
+}
