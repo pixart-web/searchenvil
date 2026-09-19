@@ -16,7 +16,8 @@
     "@searchenvil/queue": "workspace:*",
     "@searchenvil/shared": "workspace:*",
     "@searchenvil/crawler": "workspace:*",
-    "@searchenvil/audit-engine": "workspace:*"
+    "@searchenvil/audit-engine": "workspace:*",
+    "@searchenvil/performance": "workspace:*"
   },
   "devDependencies": {
     "@searchenvil/tsconfig": "workspace:*",

@@ -10,7 +10,7 @@ describe("computeSearchHealth (deterministic — Phase 08 gate)", () => {
       sitemapUrls: ["https://example.com/sitemap.xml"],
     });
     const issues = runAudit(site, ALL_RULES);
-    const result = computeSearchHealth(issues, site.pages.length);
+    const result = computeSearchHealth(site, issues);
 
     expect(result.overallScore).toBe(100);
     for (const score of Object.values(result.categoryScores)) {
@@ -25,8 +25,8 @@ describe("computeSearchHealth (deterministic — Phase 08 gate)", () => {
     );
     const issues = runAudit(site, ALL_RULES);
 
-    const first = computeSearchHealth(issues, site.pages.length);
-    const second = computeSearchHealth(issues, site.pages.length);
+    const first = computeSearchHealth(site, issues);
+    const second = computeSearchHealth(site, issues);
 
     expect(second).toEqual(first);
   });
@@ -37,8 +37,8 @@ describe("computeSearchHealth (deterministic — Phase 08 gate)", () => {
     for (let i = 0; i < 19; i++) bigSitePages.push(buildPage());
     const bigSite = buildSite(bigSitePages);
 
-    const smallScore = computeSearchHealth(runAudit(smallSite, ALL_RULES), smallSite.pages.length);
-    const bigScore = computeSearchHealth(runAudit(bigSite, ALL_RULES), bigSite.pages.length);
+    const smallScore = computeSearchHealth(smallSite, runAudit(smallSite, ALL_RULES));
+    const bigScore = computeSearchHealth(bigSite, runAudit(bigSite, ALL_RULES));
 
     expect(smallScore.categoryScores.TECHNICAL).toBeLessThan(bigScore.categoryScores.TECHNICAL as number);
   });
@@ -46,13 +46,13 @@ describe("computeSearchHealth (deterministic — Phase 08 gate)", () => {
   it("never scores a category below 0 even with many severe issues", () => {
     const pages = Array.from({ length: 5 }, () => buildPage({ statusCode: 500 }));
     const site = buildSite(pages);
-    const result = computeSearchHealth(runAudit(site, ALL_RULES), site.pages.length);
+    const result = computeSearchHealth(site, runAudit(site, ALL_RULES));
     expect(result.categoryScores.TECHNICAL).toBeGreaterThanOrEqual(0);
   });
 
   it("stamps the explanation with the current scoring version and enough detail to reconstruct the score", () => {
     const site = buildSite([buildPage({ statusCode: 404 })]);
-    const result = computeSearchHealth(runAudit(site, ALL_RULES), site.pages.length);
+    const result = computeSearchHealth(site, runAudit(site, ALL_RULES));
 
     expect(result.explanation.scoringVersion).toBe(SCORING_VERSION);
     expect(result.explanation.totalPages).toBe(1);
@@ -82,9 +82,22 @@ describe("computeSearchHealth (deterministic — Phase 08 gate)", () => {
     expect(lowConfidencePenalty).toBeLessThan(highConfidencePenalty);
   });
 
-  it("excludes PERFORMANCE from the computed categories (no rules exist for it yet)", () => {
+  it("excludes PERFORMANCE from the computed categories when no page has been sampled", () => {
     const site = buildSite([buildPage()]);
-    const result = computeSearchHealth(runAudit(site, ALL_RULES), site.pages.length);
+    const result = computeSearchHealth(site, runAudit(site, ALL_RULES));
     expect(result.categoryScores.PERFORMANCE).toBeUndefined();
+  });
+
+  it("includes PERFORMANCE once at least one page has been sampled, and scores it against the sample size, not total pages", () => {
+    const sampled = buildPage({ performance: { status: "COMPLETED", ttfbMs: 100, lcpMs: 5000, cls: 0.05 } });
+    const unsampled = Array.from({ length: 9 }, () => buildPage());
+    const site = buildSite([sampled, ...unsampled]);
+
+    const result = computeSearchHealth(site, runAudit(site, ALL_RULES));
+    expect(result.categoryScores.PERFORMANCE).toBeDefined();
+    // poor-lcp fires on the 1 sampled page out of a 1-page sample (100%
+    // affectedRatio), not 1 out of 10 crawled pages — a much harsher score
+    // than diluting against the full crawl would produce.
+    expect(result.categoryScores.PERFORMANCE as number).toBeLessThan(100);
   });
 });

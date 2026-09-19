@@ -49,6 +49,13 @@ export interface LinkInput {
  * decoupled from how facts are stored — see docs/ARCHITECTURE.md
  * ("Crawler ≠ Audit Engine"). The worker maps CrawlPage rows into this.
  */
+export interface PagePerformanceInput {
+  status: "COMPLETED" | "FAILED";
+  ttfbMs: number | undefined;
+  lcpMs: number | undefined;
+  cls: number | undefined;
+}
+
 export interface PageInput {
   id: string;
   url: string;
@@ -69,6 +76,8 @@ export interface PageInput {
   images: ImageInput[];
   structuredData: StructuredDataInput[];
   outboundLinks: LinkInput[];
+  /** Only present for the small, sampled subset of pages performance analysis actually ran on — see docs/PERFORMANCE.md. Absence means "not sampled," not "fine." */
+  performance: PagePerformanceInput | undefined;
 }
 
 export interface SiteInput {

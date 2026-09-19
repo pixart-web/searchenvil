@@ -88,6 +88,7 @@ describe("processAuditJob", () => {
           images: [],
           structuredData: [],
           outboundLinks: [],
+          performance: undefined,
         },
       ],
     };
@@ -152,6 +153,7 @@ describe("processAuditJob", () => {
           images: [],
           structuredData: [],
           outboundLinks: [],
+          performance: undefined,
         },
       ],
     };

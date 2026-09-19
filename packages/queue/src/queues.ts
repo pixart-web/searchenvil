@@ -17,7 +17,6 @@ export interface AuditJobData {
 
 export interface PerformanceJobData {
   crawlId: string;
-  pageIds: string[];
 }
 
 export interface ReportJobData {

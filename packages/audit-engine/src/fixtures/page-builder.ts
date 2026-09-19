@@ -26,6 +26,7 @@ export function buildPage(overrides: Partial<PageInput> = {}): PageInput {
     images: [],
     structuredData: [],
     outboundLinks: [],
+    performance: undefined,
     ...overrides,
   };
 }

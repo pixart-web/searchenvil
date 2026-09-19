@@ -35,7 +35,7 @@ describe("rule registry", () => {
   it("covers every declared issue category with at least one rule", () => {
     const categories = new Set(ALL_RULES.map((r) => r.category));
     expect(categories).toEqual(
-      new Set(["TECHNICAL", "INDEXABILITY", "CONTENT", "INTERNAL_LINKING", "STRUCTURED_DATA"]),
+      new Set(["TECHNICAL", "INDEXABILITY", "CONTENT", "INTERNAL_LINKING", "STRUCTURED_DATA", "PERFORMANCE"]),
     );
   });
 });

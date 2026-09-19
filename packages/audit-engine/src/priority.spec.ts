@@ -11,7 +11,7 @@ describe("prioritizeIssues (deterministic — Phase 08 gate)", () => {
       buildPage({ headings: [{ level: 1, text: "A" }, { level: 1, text: "B" }] }), // multiple-h1: LOW, confidence 0.5
     ];
     const site = buildSite(pages);
-    const ranked = prioritizeIssues(runAudit(site, ALL_RULES), site.pages.length);
+    const ranked = prioritizeIssues(site, runAudit(site, ALL_RULES));
 
     const critIndex = ranked.findIndex((r) => r.ruleKey === "http-5xx-error");
     const lowIndex = ranked.findIndex((r) => r.ruleKey === "multiple-h1");
@@ -24,8 +24,8 @@ describe("prioritizeIssues (deterministic — Phase 08 gate)", () => {
     const site = buildSite([buildPage({ statusCode: 404 }), buildPage({ title: undefined })]);
     const issues = runAudit(site, ALL_RULES);
 
-    const first = prioritizeIssues(issues, site.pages.length);
-    const second = prioritizeIssues(issues, site.pages.length);
+    const first = prioritizeIssues(site, issues);
+    const second = prioritizeIssues(site, issues);
 
     expect(second.map((r) => r.ruleKey)).toEqual(first.map((r) => r.ruleKey));
   });
@@ -35,8 +35,8 @@ describe("prioritizeIssues (deterministic — Phase 08 gate)", () => {
     const issues = runAudit(site, ALL_RULES);
     const reversedIssues = [...issues].reverse();
 
-    const ranked = prioritizeIssues(issues, site.pages.length).map((r) => r.ruleKey);
-    const rankedFromReversed = prioritizeIssues(reversedIssues, site.pages.length).map((r) => r.ruleKey);
+    const ranked = prioritizeIssues(site, issues).map((r) => r.ruleKey);
+    const rankedFromReversed = prioritizeIssues(site, reversedIssues).map((r) => r.ruleKey);
 
     expect(rankedFromReversed).toEqual(ranked);
   });
@@ -52,7 +52,7 @@ describe("prioritizeIssues (deterministic — Phase 08 gate)", () => {
     const orphan = buildPage({ id: "orphan", depth: 1 });
     const site = buildSite([linker, target, orphan]);
 
-    const ranked = prioritizeIssues(runAudit(site, ALL_RULES), site.pages.length);
+    const ranked = prioritizeIssues(site, runAudit(site, ALL_RULES));
     const easyEntry = ranked.find((r) => r.ruleKey === "internal-link-to-redirect");
     const mediumEntry = ranked.find((r) => r.ruleKey === "orphan-page");
 
@@ -67,7 +67,7 @@ describe("prioritizeIssues (deterministic — Phase 08 gate)", () => {
 
   it("labels impact as HIGH/MEDIUM/LOW consistently with the underlying penalty magnitude", () => {
     const site = buildSite([buildPage({ statusCode: 500 })]);
-    const ranked = prioritizeIssues(runAudit(site, ALL_RULES), site.pages.length);
+    const ranked = prioritizeIssues(site, runAudit(site, ALL_RULES));
     const criticalEntry = ranked.find((r) => r.ruleKey === "http-5xx-error");
     expect(criticalEntry?.impact).toBe("HIGH");
   });
@@ -76,6 +76,6 @@ describe("prioritizeIssues (deterministic — Phase 08 gate)", () => {
     const site = buildSite([buildPage({ canonicalUrl: "https://example.com/page-1" })], {
       sitemapUrls: ["https://example.com/sitemap.xml"],
     });
-    expect(prioritizeIssues(runAudit(site, ALL_RULES), site.pages.length)).toEqual([]);
+    expect(prioritizeIssues(site, runAudit(site, ALL_RULES))).toEqual([]);
   });
 });

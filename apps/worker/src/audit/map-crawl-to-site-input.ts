@@ -11,7 +11,7 @@ export async function mapCrawlToSiteInput(prisma: PrismaClient, crawlId: string)
   const crawl = await prisma.crawl.findUniqueOrThrow({ where: { id: crawlId } });
   const pages = await prisma.crawlPage.findMany({
     where: { crawlId },
-    include: { images: true, structuredData: true, outboundLinks: true },
+    include: { images: true, structuredData: true, outboundLinks: true, performance: true },
   });
 
   return {
@@ -49,6 +49,18 @@ export async function mapCrawlToSiteInput(prisma: PrismaClient, crawlId: string)
         targetPageId: link.targetPageId ?? undefined,
         anchorText: link.anchorText ?? "",
       })),
+      // Only COMPLETED/FAILED are meaningful to the audit engine — a
+      // PENDING/RUNNING row (a job that's still in flight) isn't a result
+      // yet, so it's treated the same as "not sampled."
+      performance:
+        page.performance && (page.performance.status === "COMPLETED" || page.performance.status === "FAILED")
+          ? {
+              status: page.performance.status,
+              ttfbMs: page.performance.ttfbMs ?? undefined,
+              lcpMs: page.performance.lcpMs ?? undefined,
+              cls: page.performance.cls ?? undefined,
+            }
+          : undefined,
     })),
     sitemapUrls: (crawl.sitemapUrls as string[] | null) ?? [],
     robotsTxtFound: crawl.robotsTxtFound,

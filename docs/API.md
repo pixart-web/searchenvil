@@ -130,6 +130,19 @@ needs the audit run too).
 | GET | `.../pages` | Paginated (`page`, `pageSize`, max 100) list. Query: `search` (URL substring), `indexableOnly` (`true`/`false`), `statusClass` (`2xx`\|`3xx`\|`4xx`\|`5xx`) |
 | GET | `.../pages/:pageId` | Full technical profile: HTTP facts, indexability, metadata, headings, content, images, structured data, outbound links, inbound-link count (within this crawl), and every issue affecting this specific page |
 
+## Project-level Performance
+
+`/organizations/:organizationId/projects/:projectId/performance` — sampled Core Web Vitals for the
+project's primary site's latest **completed crawl**. See `docs/PERFORMANCE.md` for why this is a
+small sample, not one row per crawled page.
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `.../performance` | `{ crawlId, totalPagesCrawled, samples[] }` — `totalPagesCrawled` is the real crawl size (for "N of M pages sampled" context); `samples` only ever contains the pages that were actually sampled (`PagePerformance` rows), each with `status`, `ttfbMs`/`domContentLoadedMs`/`loadTimeMs`/`lcpMs`/`cls`, `errorMessage` (set only when `status` is `FAILED`), and the sampled page's `id`/`normalizedUrl`/`title` |
+
+Returns `{ crawlId: null, totalPagesCrawled: 0, samples: [] }` (not an error) when no crawl has
+completed yet — same empty-state convention as Issues/Pages above.
+
 ## Health
 
 | Method | Path | Auth | Description |
@@ -139,7 +152,6 @@ needs the audit run too).
 
 ## What's not here yet
 
-Projects, sites, crawls, issues, pages, performance, comparisons, and reports land in their
-respective phases (04–14) and will be documented here as they ship — see
-`docs/progress/PHASE-XX.md` for what's actually implemented at any point in time versus this
+Comparisons and reports land in their respective phases (13–14) and will be documented here as they
+ship — see `docs/progress/PHASE-XX.md` for what's actually implemented at any point in time versus this
 being a forward-looking spec.

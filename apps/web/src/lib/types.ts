@@ -211,3 +211,24 @@ export interface CrawlPageDetail extends CrawlPageListItem {
   inboundLinkCount: number;
   issues: PageAffectingIssue[];
 }
+
+export type PerformanceSampleStatus = "PENDING" | "RUNNING" | "COMPLETED" | "FAILED" | "SKIPPED";
+
+export interface PerformanceSample {
+  id: string;
+  status: PerformanceSampleStatus;
+  ttfbMs: number | null;
+  domContentLoadedMs: number | null;
+  loadTimeMs: number | null;
+  lcpMs: number | null;
+  cls: number | null;
+  errorMessage: string | null;
+  analyzedAt: string | null;
+  page: { id: string; normalizedUrl: string; title: string | null };
+}
+
+export interface ProjectPerformance {
+  crawlId: string | null;
+  totalPagesCrawled: number;
+  samples: PerformanceSample[];
+}

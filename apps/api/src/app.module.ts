@@ -15,6 +15,7 @@ import { SitesModule } from "./sites/sites.module";
 import { CrawlsModule } from "./crawls/crawls.module";
 import { IssuesModule } from "./issues/issues.module";
 import { PagesModule } from "./pages/pages.module";
+import { PerformanceModule } from "./performance/performance.module";
 import { QueueModule } from "./common/queue/queue.module";
 
 @Module({
@@ -31,6 +32,7 @@ import { QueueModule } from "./common/queue/queue.module";
     CrawlsModule,
     IssuesModule,
     PagesModule,
+    PerformanceModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },

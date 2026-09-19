@@ -13,7 +13,7 @@ interface AuditRuleDefinition {
   key: string;              // stable, e.g. "missing-title" — never reuse a retired key
   version: number;          // bump when evaluate() logic changes meaningfully
   name: string;
-  category: IssueCategory;  // TECHNICAL | INDEXABILITY | CONTENT | INTERNAL_LINKING | STRUCTURED_DATA
+  category: IssueCategory;  // TECHNICAL | INDEXABILITY | CONTENT | INTERNAL_LINKING | STRUCTURED_DATA | PERFORMANCE
   defaultSeverity: IssueSeverity;   // CRITICAL | HIGH | MEDIUM | LOW | NOTICE
   defaultEffort: EffortLevel;       // EASY | MEDIUM | HARD
   weight: number;           // relative importance for Search Health scoring (Phase 08)
@@ -32,7 +32,7 @@ result at all, never an empty issue.
 worker's `apps/worker/src/audit/map-crawl-to-site-input.ts` is the one place that bridges
 "persisted `CrawlPage` rows" and "what a rule needs to see."
 
-## Rule inventory (28 rules)
+## Rule inventory (32 rules)
 
 | Category | Rules |
 |---|---|
@@ -41,6 +41,7 @@ worker's `apps/worker/src/audit/map-crawl-to-site-input.ts` is the one place tha
 | CONTENT (9) | `missing-title`, `duplicate-title`, `title-suspicious-length`, `missing-meta-description`, `duplicate-meta-description`, `meta-description-suspicious-length`, `low-word-count`, `duplicate-h1`, `missing-alt-text` |
 | INTERNAL_LINKING (3) | `broken-internal-link`, `internal-link-to-redirect`, `orphan-page` |
 | STRUCTURED_DATA (1) | `invalid-structured-data` |
+| PERFORMANCE (4) | `poor-lcp`, `high-cls`, `slow-ttfb`, `performance-analysis-failed` |
 
 Source of truth: `packages/audit-engine/src/rules/*.ts`, one file per category. Every rule ships
 with its own `description`/`whyItMatters`/`recommendation` text — that's what the product surfaces
@@ -57,6 +58,15 @@ errors"), rules are severity-graded to reflect how certain the finding actually 
   pages), `missing-canonical` (not every page needs one), `low-word-count` (some pages are
   legitimately short), `multiple-h1` (some design systems use several intentionally). These are
   `NOTICE`/`LOW` severity and phrased as prompts to review, not verdicts.
+
+### PERFORMANCE rules only judge sampled pages
+
+`poor-lcp`/`high-cls`/`slow-ttfb` all guard on `page.performance?.status === "COMPLETED"` — a page
+that was never sampled, or whose sample failed, produces no verdict either way (never a false
+"clean" and never a false "poor"). `performance-analysis-failed` is the one exception: it fires
+specifically when a sampled page's browser run failed, as a `NOTICE` telling the user "we tried and
+couldn't tell you," which is itself useful information distinct from silence. See
+`docs/PERFORMANCE.md` for why performance is sampled rather than analyzed for every page.
 
 ## What's deliberately not covered yet
 

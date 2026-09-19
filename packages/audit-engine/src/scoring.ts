@@ -1,4 +1,4 @@
-import type { AuditIssueResult, IssueCategory, IssueSeverity } from "./types";
+import type { AuditIssueResult, IssueCategory, IssueSeverity, SiteInput } from "./types";
 
 export const SCORING_VERSION = "2026.1";
 
@@ -22,6 +22,7 @@ const SCORED_CATEGORIES: IssueCategory[] = [
   "CONTENT",
   "INTERNAL_LINKING",
   "STRUCTURED_DATA",
+  "PERFORMANCE",
 ];
 
 export interface IssuePenaltyBreakdown {
@@ -100,20 +101,35 @@ export function computePenalty(
  * Computes Search Health: each scored category starts at 100 and loses
  * points per firing issue (computePenalty), floored at 0. The overall score
  * is the unweighted mean of the category scores that have at least one
- * applicable rule (see SCORED_CATEGORIES — Performance isn't included until
- * Phase 12 has rules for it). Deterministic: identical issues + page count
- * always produce identical scores, and `explanation` captures the full
- * per-issue breakdown so a score can be explained even after the scoring
- * formula itself later changes (each score is stamped with the
+ * applicable rule (see SCORED_CATEGORIES). Deterministic: identical issues +
+ * page count always produce identical scores, and `explanation` captures
+ * the full per-issue breakdown so a score can be explained even after the
+ * scoring formula itself later changes (each score is stamped with the
  * scoringVersion that produced it).
+ *
+ * PERFORMANCE issues use the number of *sampled* pages as their
+ * affectedRatio denominator, not the total crawl size — performance
+ * analysis only ever runs on a small bounded sample (docs/PERFORMANCE.md),
+ * so "3 of 3 sampled pages have poor LCP" must not be diluted into "3 of
+ * 200 crawled pages," which would understate a real, consistent problem.
  */
-export function computeSearchHealth(
-  issues: AuditIssueResult[],
-  totalPages: number,
-): SearchHealthResult {
-  const penalties = issues.map((issue) => computePenalty(issue, totalPages));
+export function computeSearchHealth(site: SiteInput, issues: AuditIssueResult[]): SearchHealthResult {
+  const totalPages = site.pages.length;
+  const performanceSampleSize = site.pages.filter((p) => p.performance !== undefined).length;
+  const denominatorFor = (category: IssueCategory): number =>
+    category === "PERFORMANCE" ? performanceSampleSize : totalPages;
 
-  const categories: CategoryScoreBreakdown[] = SCORED_CATEGORIES.map((category) => {
+  const penalties = issues.map((issue) => computePenalty(issue, denominatorFor(issue.rule.category)));
+
+  // PERFORMANCE is only scored once at least one page has actually been
+  // analyzed — before that, "no performance issues found" would really
+  // mean "no performance data exists yet," and silently scoring it 100
+  // would misrepresent absence of data as a clean bill of health.
+  const scoredCategories = SCORED_CATEGORIES.filter(
+    (category) => category !== "PERFORMANCE" || performanceSampleSize > 0,
+  );
+
+  const categories: CategoryScoreBreakdown[] = scoredCategories.map((category) => {
     const categoryPenalties = penalties.filter((p) => p.category === category);
     const totalPenalty = categoryPenalties.reduce((sum, p) => sum + p.penalty, 0);
     return {

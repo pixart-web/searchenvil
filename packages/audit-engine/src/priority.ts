@@ -1,5 +1,5 @@
 import { computePenalty } from "./scoring";
-import type { AuditIssueResult, EffortLevel, ImpactLabel } from "./types";
+import type { AuditIssueResult, EffortLevel, ImpactLabel, IssueCategory, SiteInput } from "./types";
 
 /** Nudges easy, high-value fixes above hard ones of similar impact — "what should I fix first?" */
 const EFFORT_EASE_FACTOR: Record<EffortLevel, number> = {
@@ -22,11 +22,20 @@ export interface PrioritizedIssue {
  * easy it is to fix. Deterministic: identical input always produces the
  * same order — ties are broken by ruleKey so the ordering is total, not
  * just "mostly stable." See docs/SCORING.md.
+ *
+ * Uses the same per-category denominator rule as computeSearchHealth
+ * (PERFORMANCE issues are ranked against the sampled page count, not the
+ * whole crawl) so an issue's rank and its cost to the score never disagree.
  */
-export function prioritizeIssues(issues: AuditIssueResult[], totalPages: number): PrioritizedIssue[] {
+export function prioritizeIssues(site: SiteInput, issues: AuditIssueResult[]): PrioritizedIssue[] {
+  const totalPages = site.pages.length;
+  const performanceSampleSize = site.pages.filter((p) => p.performance !== undefined).length;
+  const denominatorFor = (category: IssueCategory): number =>
+    category === "PERFORMANCE" ? performanceSampleSize : totalPages;
+
   return issues
     .map((issue) => {
-      const { penalty } = computePenalty(issue, totalPages);
+      const { penalty } = computePenalty(issue, denominatorFor(issue.rule.category));
       const priorityScore = penalty * EFFORT_EASE_FACTOR[issue.rule.defaultEffort];
       return {
         ruleKey: issue.ruleKey,

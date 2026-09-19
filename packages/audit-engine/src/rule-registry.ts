@@ -3,6 +3,7 @@ import { indexabilityRules } from "./rules/indexability";
 import { contentRules } from "./rules/content";
 import { internalLinkingRules } from "./rules/internal-linking";
 import { structuredDataRules } from "./rules/structured-data";
+import { performanceRules } from "./rules/performance";
 import type { AuditRuleDefinition } from "./types";
 
 export const ALL_RULES: AuditRuleDefinition[] = [
@@ -11,6 +12,7 @@ export const ALL_RULES: AuditRuleDefinition[] = [
   ...contentRules,
   ...internalLinkingRules,
   ...structuredDataRules,
+  ...performanceRules,
 ];
 
 export const RULESET_VERSION = "2026.1";

@@ -11,6 +11,8 @@ export interface ProcessCrawlJobDeps {
   cancellationCheckIntervalMs?: number;
   /** Called once the crawl reaches COMPLETED, to kick off the audit pipeline. Never called on FAILED/CANCELLED. */
   enqueueAuditJob?: (crawlId: string) => Promise<void>;
+  /** Called once the crawl reaches COMPLETED, to kick off bounded/sampled performance analysis. */
+  enqueuePerformanceJob?: (crawlId: string) => Promise<void>;
 }
 
 /**
@@ -101,6 +103,12 @@ export async function processCrawlJob(deps: ProcessCrawlJobDeps, crawlId: string
     if (finalStatus === "COMPLETED") {
       await deps.enqueueAuditJob?.(crawlId).catch((error) => {
         logger.error("failed to enqueue audit job", {
+          crawlId,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      });
+      await deps.enqueuePerformanceJob?.(crawlId).catch((error) => {
+        logger.error("failed to enqueue performance job", {
           crawlId,
           error: error instanceof Error ? error.message : String(error),
         });

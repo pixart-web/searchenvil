@@ -194,10 +194,44 @@ model CrawlPage {
   outboundLinks  CrawlLink[]             @relation("SourcePage")
   inboundLinks   CrawlLink[]             @relation("TargetPage")
   occurrences    AuditOccurrence[]
+  performance    PagePerformance?
 
   @@unique([crawlId, normalizedUrl])
   @@index([crawlId])
   @@map("crawl_pages")
+}
+
+enum PerformanceStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  SKIPPED
+}
+
+/**
+ * One row per SAMPLED page (never every page in a crawl — see
+ * docs/PERFORMANCE.md for the sampling/bounding rationale). Absence of a
+ * row means "not sampled," which is distinct from a SKIPPED/FAILED row
+ * (attempted but didn't produce a result) — the audit engine and UI must
+ * not conflate the two.
+ */
+model PagePerformance {
+  id                  String            @id @default(uuid())
+  pageId              String            @unique
+  status              PerformanceStatus @default(PENDING)
+  ttfbMs              Int?
+  domContentLoadedMs  Int?
+  loadTimeMs          Int?
+  lcpMs               Int?
+  cls                 Float?
+  errorMessage        String?
+  analyzedAt          DateTime?
+  createdAt           DateTime          @default(now())
+
+  page CrawlPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@map("page_performance")
 }
 
 model CrawlLink {

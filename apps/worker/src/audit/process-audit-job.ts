@@ -48,10 +48,9 @@ export async function processAuditJob(deps: ProcessAuditJobDeps, crawlId: string
     const ruleIdByKey = await syncAuditRules(prisma, ALL_RULES);
     const site = await buildSiteInput(prisma, crawlId);
     const issues = runAudit(site, ALL_RULES);
-    const totalPages = site.pages.length;
 
-    const prioritized = new Map(prioritizeIssues(issues, totalPages).map((p) => [p.ruleKey, p]));
-    const health = computeSearchHealth(issues, totalPages);
+    const prioritized = new Map(prioritizeIssues(site, issues).map((p) => [p.ruleKey, p]));
+    const health = computeSearchHealth(site, issues);
 
     for (const issue of issues) {
       const ruleId = ruleIdByKey.get(issue.ruleKey);
