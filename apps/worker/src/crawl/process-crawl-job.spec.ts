@@ -113,15 +113,26 @@ describe("processCrawlJob", () => {
       const aboutPage = page({ normalizedUrl: about, depth: 1 });
       options.onPageCrawled?.(homePage);
       options.onPageCrawled?.(aboutPage);
-      return { pages: [homePage, aboutPage], sitemapUrls: [], robotsTxtFound: true };
+      return {
+        pages: [homePage, aboutPage],
+        sitemapUrls: [`${home}sitemap.xml`],
+        robotsTxtFound: true,
+      };
     };
 
-    await processCrawlJob({ prisma, runCrawl: fakeRunCrawl }, crawlId);
+    let enqueuedAuditFor: string | undefined;
+    await processCrawlJob(
+      { prisma, runCrawl: fakeRunCrawl, enqueueAuditJob: async (id) => { enqueuedAuditFor = id; } },
+      crawlId,
+    );
 
     const finished = await prisma.crawl.findUniqueOrThrow({ where: { id: crawlId } });
     expect(finished.status).toBe("COMPLETED");
     expect(finished.pagesCrawled).toBe(2);
     expect(finished.startedAt).toBeTruthy();
+    expect(finished.sitemapUrls).toEqual([`${home}sitemap.xml`]);
+    expect(finished.robotsTxtFound).toBe(true);
+    expect(enqueuedAuditFor).toBe(crawlId);
     expect(finished.finishedAt).toBeTruthy();
 
     const pages = await prisma.crawlPage.findMany({ where: { crawlId }, orderBy: { normalizedUrl: "asc" } });
@@ -153,11 +164,16 @@ describe("processCrawlJob", () => {
       throw new Error("network exploded");
     };
 
-    await processCrawlJob({ prisma, runCrawl: fakeRunCrawl }, crawlId);
+    let auditEnqueued = false;
+    await processCrawlJob(
+      { prisma, runCrawl: fakeRunCrawl, enqueueAuditJob: async () => { auditEnqueued = true; } },
+      crawlId,
+    );
 
     const finished = await prisma.crawl.findUniqueOrThrow({ where: { id: crawlId } });
     expect(finished.status).toBe("FAILED");
     expect(finished.errorMessage).toBe("network exploded");
+    expect(auditEnqueued).toBe(false);
   });
 
   it("stops and marks the crawl CANCELLED when cancellation is requested mid-run", async () => {
@@ -176,10 +192,20 @@ describe("processCrawlJob", () => {
       return { pages: [], sitemapUrls: [], robotsTxtFound: false };
     };
 
-    await processCrawlJob({ prisma, runCrawl: fakeRunCrawl, cancellationCheckIntervalMs: 10 }, crawlId);
+    let auditEnqueued = false;
+    await processCrawlJob(
+      {
+        prisma,
+        runCrawl: fakeRunCrawl,
+        cancellationCheckIntervalMs: 10,
+        enqueueAuditJob: async () => { auditEnqueued = true; },
+      },
+      crawlId,
+    );
 
     const finished = await prisma.crawl.findUniqueOrThrow({ where: { id: crawlId } });
     expect(finished.status).toBe("CANCELLED");
+    expect(auditEnqueued).toBe(false);
   });
 
   it("does nothing for a crawl that is already cancelled before processing starts", async () => {

@@ -9,6 +9,8 @@ export interface ProcessCrawlJobDeps {
   runCrawl: (config: CrawlConfig, options: RunCrawlOptions) => Promise<CrawlResult>;
   /** How often to re-check whether the crawl has been cancelled, in ms. */
   cancellationCheckIntervalMs?: number;
+  /** Called once the crawl reaches COMPLETED, to kick off the audit pipeline. Never called on FAILED/CANCELLED. */
+  enqueueAuditJob?: (crawlId: string) => Promise<void>;
 }
 
 /**
@@ -86,10 +88,24 @@ export async function processCrawlJob(deps: ProcessCrawlJobDeps, crawlId: string
     const finalStatus = controller.signal.aborted ? "CANCELLED" : "COMPLETED";
     await prisma.crawl.update({
       where: { id: crawlId },
-      data: { status: finalStatus, finishedAt: new Date() },
+      data: {
+        status: finalStatus,
+        finishedAt: new Date(),
+        sitemapUrls: result.sitemapUrls,
+        robotsTxtFound: result.robotsTxtFound,
+      },
     });
 
     logger.info("crawl finished", { crawlId, status: finalStatus, pagesCrawled: result.pages.length });
+
+    if (finalStatus === "COMPLETED") {
+      await deps.enqueueAuditJob?.(crawlId).catch((error) => {
+        logger.error("failed to enqueue audit job", {
+          crawlId,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      });
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error("crawl failed", { crawlId, error: message });

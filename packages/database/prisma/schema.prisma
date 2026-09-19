@@ -144,6 +144,8 @@ model Crawl {
   maxPages       Int         @default(200)
   maxDepth       Int         @default(5)
   pagesCrawled   Int         @default(0)
+  sitemapUrls    Json?
+  robotsTxtFound Boolean     @default(false)
   errorMessage   String?
   startedAt      DateTime?
   finishedAt     DateTime?
