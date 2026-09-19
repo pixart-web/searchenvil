@@ -10,6 +10,8 @@ import { HealthModule } from "./health/health.module";
 import { AuthModule } from "./auth/auth.module";
 import { SessionAuthGuard } from "./auth/guards/session-auth.guard";
 import { OrganizationsModule } from "./organizations/organizations.module";
+import { ProjectsModule } from "./projects/projects.module";
+import { SitesModule } from "./sites/sites.module";
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { OrganizationsModule } from "./organizations/organizations.module";
     HealthModule,
     AuthModule,
     OrganizationsModule,
+    ProjectsModule,
+    SitesModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },

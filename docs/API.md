@@ -44,6 +44,40 @@ organization membership at the given role via `OrgRolesGuard` — see
 | PATCH | `/organizations/:organizationId/members/:memberId` | ADMIN | Change a member's role (blocked if it would leave zero `OWNER`s) |
 | DELETE | `/organizations/:organizationId/members/:memberId` | ADMIN | Remove a member (same last-owner protection) |
 
+## Projects
+
+All routes require a session and organization membership (`OrgRolesGuard` on `:organizationId`,
+same as Organizations above).
+
+| Method | Path | Min role | Description |
+|---|---|---|---|
+| GET | `/organizations/:organizationId/projects` | MEMBER | List projects (with site count) |
+| POST | `/organizations/:organizationId/projects` | MEMBER | Create a project `{ name }` |
+| GET | `/organizations/:organizationId/projects/:projectId` | MEMBER | Project details |
+| PATCH | `/organizations/:organizationId/projects/:projectId` | MEMBER | Update `{ name? }` |
+| DELETE | `/organizations/:organizationId/projects/:projectId` | ADMIN | Delete a project (cascades to its sites/crawls) |
+
+A `:projectId` that exists but belongs to a different organization than `:organizationId` in the
+URL returns `404`, not `403` — the caller is authorized for *an* organization, just not one that
+owns that project, so there's nothing more specific to say. See `docs/SECURITY.md`.
+
+## Sites
+
+Nested under a project: `/organizations/:organizationId/projects/:projectId/sites`. Same
+`MEMBER`/`ADMIN` role split as Projects.
+
+| Method | Path | Min role | Description |
+|---|---|---|---|
+| GET | `.../sites` | MEMBER | List a project's websites |
+| POST | `.../sites` | MEMBER | Add a website `{ displayName, rootUrl }` — `rootUrl` must be `http(s)`, unique per project |
+| GET | `.../sites/:siteId` | MEMBER | Site details |
+| PATCH | `.../sites/:siteId` | MEMBER | Update `{ displayName?, rootUrl? }` |
+| DELETE | `.../sites/:siteId` | ADMIN | Remove a website |
+
+`rootUrl` is validated as a well-formed `http`/`https` URL at creation time but is **not**
+fetched or resolved here — SSRF protection applies when the crawler actually requests it
+(Phase 05), not at this metadata-only stage.
+
 ## Health
 
 | Method | Path | Auth | Description |
