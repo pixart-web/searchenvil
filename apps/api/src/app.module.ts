@@ -14,6 +14,7 @@ import { ProjectsModule } from "./projects/projects.module";
 import { SitesModule } from "./sites/sites.module";
 import { CrawlsModule } from "./crawls/crawls.module";
 import { IssuesModule } from "./issues/issues.module";
+import { PagesModule } from "./pages/pages.module";
 import { QueueModule } from "./common/queue/queue.module";
 
 @Module({
@@ -29,6 +30,7 @@ import { QueueModule } from "./common/queue/queue.module";
     SitesModule,
     CrawlsModule,
     IssuesModule,
+    PagesModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },

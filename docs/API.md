@@ -119,6 +119,17 @@ Returns `[]` (not an error) when no audit run has completed yet — mirrors `GET
 .../crawls/:crawlId/issues`' behavior on the crawl-scoped route this project-level one is built on
 top of.
 
+## Project-level Pages
+
+`/organizations/:organizationId/projects/:projectId/pages` — pages from the project's primary
+site's latest **completed crawl** (facts exist as soon as the crawl finishes, unlike Issues which
+needs the audit run too).
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `.../pages` | Paginated (`page`, `pageSize`, max 100) list. Query: `search` (URL substring), `indexableOnly` (`true`/`false`), `statusClass` (`2xx`\|`3xx`\|`4xx`\|`5xx`) |
+| GET | `.../pages/:pageId` | Full technical profile: HTTP facts, indexability, metadata, headings, content, images, structured data, outbound links, inbound-link count (within this crawl), and every issue affecting this specific page |
+
 ## Health
 
 | Method | Path | Auth | Description |

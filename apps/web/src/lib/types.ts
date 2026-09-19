@@ -130,3 +130,84 @@ export interface IssueOccurrence {
 export interface IssueDetail extends IssueListItem {
   occurrences: IssueOccurrence[];
 }
+
+export interface HeadingFact {
+  level: number;
+  text: string;
+}
+
+export interface OpenGraphFact {
+  property: string;
+  content: string;
+}
+
+export interface CrawlPageListItem {
+  id: string;
+  normalizedUrl: string;
+  statusCode: number | null;
+  title: string | null;
+  isIndexable: boolean;
+  wordCount: number | null;
+  depth: number;
+}
+
+export interface PagedResult<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface CrawlImageFact {
+  id: string;
+  src: string;
+  hasAlt: boolean;
+  altText: string | null;
+}
+
+export interface CrawlStructuredDataFact {
+  id: string;
+  format: string;
+  schemaType: string | null;
+  isValid: boolean;
+  errors: string[] | null;
+}
+
+export interface CrawlLinkFact {
+  id: string;
+  targetUrl: string;
+  isInternal: boolean;
+  anchorText: string | null;
+}
+
+export interface PageAffectingIssue {
+  id: string;
+  ruleKey: string;
+  title: string;
+  severity: IssueSeverity;
+  impact: ImpactLabel;
+  evidence: Record<string, unknown>;
+}
+
+export interface CrawlPageDetail extends CrawlPageListItem {
+  requestedUrl: string;
+  finalUrl: string;
+  redirectChain: string[] | null;
+  contentType: string | null;
+  responseTimeMs: number | null;
+  htmlSizeBytes: number | null;
+  metaDescription: string | null;
+  h1: string | null;
+  headings: HeadingFact[] | null;
+  canonicalUrl: string | null;
+  metaRobots: string | null;
+  xRobotsTag: string | null;
+  language: string | null;
+  openGraph: OpenGraphFact[] | null;
+  fetchError: string | null;
+  images: CrawlImageFact[];
+  structuredData: CrawlStructuredDataFact[];
+  outboundLinks: CrawlLinkFact[];
+  inboundLinkCount: number;
+  issues: PageAffectingIssue[];
+}
