@@ -12,6 +12,7 @@ import {
   StatusState,
 } from "@searchenvil/ui";
 import { apiFetch } from "@/lib/api-client";
+import { resolveProjectOrg } from "@/lib/resolve-project-org";
 import { formatCategoryLabel, formatRelativeTime } from "@/lib/format";
 import type { ProjectOverview, SiteOverview } from "@/lib/types";
 
@@ -30,22 +31,13 @@ export default function ProjectOverviewPage({
     let cancelled = false;
     async function load(): Promise<void> {
       try {
-        const orgs = await apiFetch<{ id: string }[]>("/organizations");
-        for (const org of orgs) {
-          try {
-            const data = await apiFetch<ProjectOverview>(
-              `/organizations/${org.id}/projects/${projectId}/overview`,
-            );
-            if (!cancelled) {
-              setOverview(data);
-              setState("ready");
-            }
-            return;
-          } catch {
-            // Not in this org — try the next one.
-          }
+        const data = await resolveProjectOrg(projectId, (orgId) =>
+          apiFetch<ProjectOverview>(`/organizations/${orgId}/projects/${projectId}/overview`),
+        );
+        if (!cancelled) {
+          setOverview(data);
+          setState("ready");
         }
-        if (!cancelled) setState("error");
       } catch {
         if (!cancelled) setState("error");
       }

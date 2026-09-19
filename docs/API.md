@@ -104,6 +104,21 @@ Cancellation is polled by the worker (checked every ~2s against the DB), so ther
 delay between requesting cancellation and the crawl actually stopping — in-flight page fetches
 are allowed to finish, only new ones are prevented from starting.
 
+## Project-level Issues
+
+`/organizations/:organizationId/projects/:projectId/issues` — issues for the project's primary
+site's latest **completed** audit run (same one-primary-site scope as `/overview`; see
+`docs/progress/PHASE-09.md`).
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `.../issues` | List issues, ranked by `priorityScore` desc by default. Query: `severity` (comma-separated, e.g. `CRITICAL,HIGH`), `category` (comma-separated), `search` (case-insensitive title/summary substring), `sortBy` (`priority` \| `severity` \| `affectedPages`), `sortOrder` (`asc` \| `desc`) |
+| GET | `.../issues/:issueId` | One issue's full detail: rule (what/why/how-to-fix), and every affected page with its evidence |
+
+Returns `[]` (not an error) when no audit run has completed yet — mirrors `GET
+.../crawls/:crawlId/issues`' behavior on the crawl-scoped route this project-level one is built on
+top of.
+
 ## Health
 
 | Method | Path | Auth | Description |

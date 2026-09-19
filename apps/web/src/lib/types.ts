@@ -93,3 +93,40 @@ export interface ProjectOverview {
   project: { id: string; name: string };
   sites: SiteOverview[];
 }
+
+export interface IssueRule {
+  ruleKey: string;
+  category: IssueCategory;
+  name: string;
+  description: string;
+  whyItMatters: string;
+  recommendation: string;
+}
+
+export interface IssueListItem {
+  id: string;
+  severity: IssueSeverity;
+  impact: ImpactLabel;
+  effort: EffortLevel;
+  affectedPageCount: number;
+  title: string;
+  summary: string;
+  priorityScore: number;
+  rule: IssueRule;
+}
+
+export interface IssueOccurrence {
+  id: string;
+  pageId: string;
+  evidence: Record<string, unknown>;
+  page: {
+    id: string;
+    normalizedUrl: string;
+    title: string | null;
+    statusCode: number | null;
+  };
+}
+
+export interface IssueDetail extends IssueListItem {
+  occurrences: IssueOccurrence[];
+}
