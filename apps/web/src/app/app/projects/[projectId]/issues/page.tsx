@@ -82,12 +82,14 @@ export default function IssuesPage({
 
       <div className="flex flex-wrap items-center gap-3">
         <Input
+          aria-label="Search issues"
           placeholder="Search issues…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
         />
         <select
+          aria-label="Filter by severity"
           value={severityFilter}
           onChange={(e) => setSeverityFilter(e.target.value as IssueSeverity | "")}
           className="h-10 rounded border border-forge-800 bg-forge-900 px-3 text-sm text-steel-100"
@@ -100,6 +102,7 @@ export default function IssuesPage({
           ))}
         </select>
         <select
+          aria-label="Filter by category"
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value as IssueCategory | "")}
           className="h-10 rounded border border-forge-800 bg-forge-900 px-3 text-sm text-steel-100"

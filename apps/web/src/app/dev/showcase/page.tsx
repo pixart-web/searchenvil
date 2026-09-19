@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import {
   Badge,
   Button,
@@ -20,6 +21,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default function ComponentShowcasePage(): React.ReactElement {
+  if (process.env.NODE_ENV === "production") {
+    notFound();
+  }
+
   return (
     <div className="mx-auto max-w-4xl space-y-10 p-8">
       <div>

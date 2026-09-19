@@ -47,7 +47,7 @@ export interface ProjectSwitcherProps {
   onOpen?: () => void;
 }
 
-/** Placeholder trigger for the project switcher; the dropdown menu itself lands with Phase 04 project data. */
+/** `onOpen` navigates to the projects list (apps/web wires it to /app/projects) — a simple navigation target rather than an in-place dropdown menu, since the number of projects a user has is expected to stay small. */
 export function ProjectSwitcher({ currentProjectName, onOpen }: ProjectSwitcherProps): React.ReactElement {
   return (
     <button

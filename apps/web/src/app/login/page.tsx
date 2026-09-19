@@ -22,7 +22,7 @@ export default function LoginPage(): React.ReactElement {
         method: "POST",
         body: { email, password },
       });
-      router.push("/onboarding");
+      router.push("/app/projects");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
     } finally {

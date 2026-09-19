@@ -1,6 +1,11 @@
+import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@searchenvil/ui";
 
 export default function ShellDemoPage(): React.ReactElement {
+  if (process.env.NODE_ENV === "production") {
+    notFound();
+  }
+
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold text-steel-100">Application shell demo</h1>

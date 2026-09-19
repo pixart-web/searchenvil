@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AppShell, PROJECT_NAV_ITEMS, ProjectSwitcher } from "@searchenvil/ui";
 import { NavLink } from "@/components/nav-link";
 import { apiFetch } from "@/lib/api-client";
@@ -16,6 +16,7 @@ export default function ProjectLayout({
   params: Promise<{ projectId: string }>;
 }): React.ReactElement {
   const pathname = usePathname();
+  const router = useRouter();
   const { projectId } = use(params);
   const [projectName, setProjectName] = useState("Project");
 
@@ -41,7 +42,9 @@ export default function ProjectLayout({
         items: PROJECT_NAV_ITEMS(projectId),
         currentPath: pathname,
         linkComponent: NavLink,
-        header: <ProjectSwitcher currentProjectName={projectName} />,
+        header: (
+          <ProjectSwitcher currentProjectName={projectName} onOpen={() => router.push("/app/projects")} />
+        ),
       }}
       topbar={{}}
     >

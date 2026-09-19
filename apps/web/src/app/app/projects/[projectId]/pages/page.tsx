@@ -79,6 +79,7 @@ export default function PagesListPage({
       <h1 className="text-xl font-semibold text-steel-100">Pages</h1>
 
       <Input
+        aria-label="Search pages by URL"
         placeholder="Search by URL…"
         value={search}
         onChange={(e) => {
