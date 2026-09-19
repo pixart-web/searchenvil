@@ -1,0 +1,409 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ────────────────────────────────────────────────────────────────────
+// Identity & multi-tenancy
+// ────────────────────────────────────────────────────────────────────
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  passwordHash    String
+  name            String
+  emailVerifiedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  memberships     OrganizationMember[]
+  sessions        Session[]
+  passwordResets  PasswordResetToken[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+enum OrganizationRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members  OrganizationMember[]
+  projects Project[]
+  usage    UsageRecord[]
+
+  @@map("organizations")
+}
+
+model OrganizationMember {
+  id             String           @id @default(uuid())
+  organizationId String
+  userId         String
+  role           OrganizationRole @default(MEMBER)
+  createdAt      DateTime         @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+  @@map("organization_members")
+}
+
+// ────────────────────────────────────────────────────────────────────
+// Product loop: Project → Site → Crawl
+// ────────────────────────────────────────────────────────────────────
+
+model Project {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  sites        Site[]
+  reports      Report[]
+
+  @@index([organizationId])
+  @@map("projects")
+}
+
+model Site {
+  id          String   @id @default(uuid())
+  projectId   String
+  displayName String
+  rootUrl     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  crawls  Crawl[]
+
+  @@unique([projectId, rootUrl])
+  @@map("sites")
+}
+
+enum CrawlStatus {
+  PENDING
+  DISCOVERING
+  CRAWLING
+  ANALYZING
+  SCORING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model Crawl {
+  id             String      @id @default(uuid())
+  siteId         String
+  status         CrawlStatus @default(PENDING)
+  config         Json
+  maxPages       Int         @default(200)
+  maxDepth       Int         @default(5)
+  pagesCrawled   Int         @default(0)
+  errorMessage   String?
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  site        Site         @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  pages       CrawlPage[]
+  links       CrawlLink[]
+  auditRun    AuditRun?
+  reports     Report[]
+
+  @@index([siteId])
+  @@map("crawls")
+}
+
+model CrawlPage {
+  id               String   @id @default(uuid())
+  crawlId          String
+  requestedUrl     String
+  normalizedUrl    String
+  finalUrl         String
+  redirectChain    Json?
+  statusCode       Int?
+  contentType      String?
+  responseTimeMs   Int?
+  htmlSizeBytes    Int?
+  title            String?
+  metaDescription  String?
+  h1               String?
+  headings         Json?
+  canonicalUrl     String?
+  metaRobots       String?
+  xRobotsTag       String?
+  language         String?
+  wordCount        Int?
+  isIndexable      Boolean  @default(true)
+  openGraph        Json?
+  depth            Int      @default(0)
+  fetchError       String?
+  createdAt        DateTime @default(now())
+
+  crawl          Crawl                   @relation(fields: [crawlId], references: [id], onDelete: Cascade)
+  images         CrawlImage[]
+  structuredData CrawlStructuredDataBlock[]
+  outboundLinks  CrawlLink[]             @relation("SourcePage")
+  inboundLinks   CrawlLink[]             @relation("TargetPage")
+  occurrences    AuditOccurrence[]
+
+  @@unique([crawlId, normalizedUrl])
+  @@index([crawlId])
+  @@map("crawl_pages")
+}
+
+model CrawlLink {
+  id           String   @id @default(uuid())
+  crawlId      String
+  sourcePageId String
+  targetPageId String?
+  targetUrl    String
+  isInternal   Boolean
+  anchorText   String?
+  relAttribute String?
+  statusCode   Int?
+  createdAt    DateTime @default(now())
+
+  crawl      Crawl      @relation(fields: [crawlId], references: [id], onDelete: Cascade)
+  sourcePage CrawlPage  @relation("SourcePage", fields: [sourcePageId], references: [id], onDelete: Cascade)
+  targetPage CrawlPage? @relation("TargetPage", fields: [targetPageId], references: [id], onDelete: SetNull)
+
+  @@index([crawlId])
+  @@index([sourcePageId])
+  @@index([targetPageId])
+  @@map("crawl_links")
+}
+
+model CrawlImage {
+  id        String   @id @default(uuid())
+  pageId    String
+  src       String
+  altText   String?
+  hasAlt    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  page CrawlPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId])
+  @@map("crawl_images")
+}
+
+model CrawlStructuredDataBlock {
+  id        String   @id @default(uuid())
+  pageId    String
+  format    String
+  schemaType String?
+  raw       Json
+  isValid   Boolean  @default(true)
+  errors    Json?
+  createdAt DateTime @default(now())
+
+  page CrawlPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId])
+  @@map("crawl_structured_data_blocks")
+}
+
+// ────────────────────────────────────────────────────────────────────
+// Audit engine: rules, findings, scoring
+// ────────────────────────────────────────────────────────────────────
+
+enum IssueCategory {
+  TECHNICAL
+  INDEXABILITY
+  CONTENT
+  PERFORMANCE
+  INTERNAL_LINKING
+  STRUCTURED_DATA
+}
+
+enum IssueSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  NOTICE
+}
+
+enum EffortLevel {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model AuditRule {
+  id             String        @id @default(uuid())
+  ruleKey        String        @unique
+  version        Int           @default(1)
+  name           String
+  category       IssueCategory
+  defaultSeverity IssueSeverity
+  defaultEffort  EffortLevel
+  weight         Int           @default(1)
+  description    String
+  whyItMatters   String
+  recommendation String
+  isActive       Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  issues AuditIssue[]
+
+  @@map("audit_rules")
+}
+
+enum AuditRunStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model AuditRun {
+  id              String         @id @default(uuid())
+  crawlId         String         @unique
+  rulesetVersion  String
+  status          AuditRunStatus @default(PENDING)
+  startedAt       DateTime?
+  finishedAt      DateTime?
+  errorMessage    String?
+  createdAt       DateTime       @default(now())
+
+  crawl  Crawl        @relation(fields: [crawlId], references: [id], onDelete: Cascade)
+  issues AuditIssue[]
+  score  AuditScore?
+
+  @@map("audit_runs")
+}
+
+model AuditIssue {
+  id                 String        @id @default(uuid())
+  auditRunId         String
+  ruleId             String
+  severity           IssueSeverity
+  impact             String
+  effort             EffortLevel
+  affectedPageCount  Int           @default(0)
+  title              String
+  summary            String
+  priorityScore      Float         @default(0)
+  createdAt          DateTime      @default(now())
+
+  auditRun    AuditRun          @relation(fields: [auditRunId], references: [id], onDelete: Cascade)
+  rule        AuditRule         @relation(fields: [ruleId], references: [id])
+  occurrences AuditOccurrence[]
+
+  @@index([auditRunId])
+  @@index([ruleId])
+  @@map("audit_issues")
+}
+
+model AuditOccurrence {
+  id           String   @id @default(uuid())
+  auditIssueId String
+  pageId       String
+  evidence     Json
+  createdAt    DateTime @default(now())
+
+  auditIssue AuditIssue @relation(fields: [auditIssueId], references: [id], onDelete: Cascade)
+  page       CrawlPage  @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([auditIssueId, pageId])
+  @@index([pageId])
+  @@map("audit_occurrences")
+}
+
+model AuditScore {
+  id             String   @id @default(uuid())
+  auditRunId     String   @unique
+  scoringVersion String
+  overallScore   Int
+  categoryScores Json
+  explanation    Json
+  createdAt      DateTime @default(now())
+
+  auditRun AuditRun @relation(fields: [auditRunId], references: [id], onDelete: Cascade)
+
+  @@map("audit_scores")
+}
+
+// ────────────────────────────────────────────────────────────────────
+// Reporting & usage
+// ────────────────────────────────────────────────────────────────────
+
+model Report {
+  id          String   @id @default(uuid())
+  projectId   String
+  crawlId     String
+  type        String
+  fileUrl     String?
+  generatedAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  crawl   Crawl   @relation(fields: [crawlId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([crawlId])
+  @@map("reports")
+}
+
+model UsageRecord {
+  id             String   @id @default(uuid())
+  organizationId String
+  metric         String
+  value          Int
+  periodStart    DateTime
+  periodEnd      DateTime
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, metric, periodStart])
+  @@map("usage_records")
+}

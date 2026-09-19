@@ -1,0 +1,30 @@
+{
+  "name": "searchenvil",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SearchEnvil — Forge Better Search Performance. Multi-tenant technical SEO auditing platform.",
+  "engines": {
+    "node": ">=22.0.0 <23.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,md,json}\"",
+    "db:generate": "pnpm --filter @searchenvil/database run generate",
+    "db:migrate": "pnpm --filter @searchenvil/database run migrate:dev",
+    "db:seed": "pnpm --filter @searchenvil/database run seed"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.3",
+    "prettier": "^3.4.2"
+  }
+}

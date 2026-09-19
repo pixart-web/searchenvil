@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-geist-sans: "Geist", system-ui, sans-serif;
+  --font-geist-mono: "Geist Mono", ui-monospace, monospace;
+}
+
+body {
+  @apply bg-forge-950 text-steel-100 antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid theme("colors.ember.500");
+  outline-offset: 2px;
+}

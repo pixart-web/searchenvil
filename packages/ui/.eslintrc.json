@@ -1,0 +1,1 @@
+{ "extends": ["@searchenvil/eslint-config"], "parserOptions": { "ecmaFeatures": { "jsx": true } } }

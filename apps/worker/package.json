@@ -1,0 +1,30 @@
+{
+  "name": "@searchenvil/worker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/main.ts",
+    "start": "node dist/main.js",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@searchenvil/database": "workspace:*",
+    "@searchenvil/queue": "workspace:*",
+    "@searchenvil/shared": "workspace:*",
+    "@searchenvil/crawler": "workspace:*",
+    "@searchenvil/audit-engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@searchenvil/tsconfig": "workspace:*",
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8",
+    "eslint": "^8.57.1",
+    "@searchenvil/eslint-config": "workspace:*"
+  }
+}
