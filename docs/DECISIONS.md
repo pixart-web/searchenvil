@@ -2,6 +2,29 @@
 
 Lightweight ADRs. Newest first.
 
+## ADR-007: Hand-rolled concurrency limiter and SSRF-safe DNS lookup, not external libraries
+
+**Status:** Accepted (Phase 05)
+
+**Context:** The crawler needs (a) a bounded-concurrency task runner for BFS traversal and (b)
+SSRF protection that survives DNS rebinding, not just a one-time hostname check.
+
+**Decision:** (a) `packages/crawler/src/concurrency-pool.ts` is a ~50-line hand-rolled limiter
+rather than a dependency (Crawlee, p-limit, etc.) — the actual requirement (run N async workers
+against a queue that can grow while running) doesn't need a general-purpose library, and owning
+it means the crawl-specific "one item failing doesn't abort the run" behavior is exactly what we
+want, not a config flag to get right. (b) SSRF protection is implemented via undici's
+`Agent({ connect: { lookup } })` with a custom DNS lookup function
+(`ssrf.ts#createSafeLookup`) that validates the resolved IP *at the exact moment it's used to
+connect* — closing the TOCTOU gap a separate "resolve, validate, then connect" approach would
+leave open to DNS rebinding.
+
+**Consequences:** More code to own and test than pulling in a library, but the SSRF protection in
+particular is exactly right for this threat model rather than "probably good enough" — verified
+by unit tests covering the IP-range blocklist and an integration test proving `safeFetch` really
+refuses to connect to a loopback address by default (not just that the range-check function
+returns the right boolean in isolation).
+
 ## ADR-006: Turborepo tasks declare their own env var dependencies explicitly
 
 **Status:** Accepted (Phase 03)
