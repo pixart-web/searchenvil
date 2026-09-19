@@ -71,7 +71,6 @@ model Organization {
 
   members  OrganizationMember[]
   projects Project[]
-  usage    UsageRecord[]
 
   @@map("organizations")
 }
@@ -104,7 +103,6 @@ model Project {
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   sites        Site[]
-  reports      Report[]
 
   @@index([organizationId])
   @@map("projects")
@@ -152,11 +150,10 @@ model Crawl {
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
-  site        Site         @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  pages       CrawlPage[]
-  links       CrawlLink[]
-  auditRun    AuditRun?
-  reports     Report[]
+  site     Site        @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  pages    CrawlPage[]
+  links    CrawlLink[]
+  auditRun AuditRun?
 
   @@index([siteId])
   @@map("crawls")
@@ -413,33 +410,3 @@ model AuditScore {
 // Reporting & usage
 // ────────────────────────────────────────────────────────────────────
 
-model Report {
-  id          String   @id @default(uuid())
-  projectId   String
-  crawlId     String
-  type        String
-  fileUrl     String?
-  generatedAt DateTime @default(now())
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  crawl   Crawl   @relation(fields: [crawlId], references: [id], onDelete: Cascade)
-
-  @@index([projectId])
-  @@index([crawlId])
-  @@map("reports")
-}
-
-model UsageRecord {
-  id             String   @id @default(uuid())
-  organizationId String
-  metric         String
-  value          Int
-  periodStart    DateTime
-  periodEnd      DateTime
-  createdAt      DateTime @default(now())
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  @@index([organizationId, metric, periodStart])
-  @@map("usage_records")
-}
