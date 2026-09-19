@@ -95,6 +95,49 @@ export class CrawlsService {
     return page;
   }
 
+  async getScore(organizationId: string, projectId: string, siteId: string, crawlId: string) {
+    await this.getOrThrow(organizationId, projectId, siteId, crawlId);
+    const auditRun = await this.prisma.auditRun.findUnique({ where: { crawlId }, include: { score: true } });
+    if (!auditRun?.score) {
+      throw new NotFoundException("No Search Health score available for this crawl yet.");
+    }
+    return auditRun.score;
+  }
+
+  async listIssues(organizationId: string, projectId: string, siteId: string, crawlId: string) {
+    await this.getOrThrow(organizationId, projectId, siteId, crawlId);
+    const auditRun = await this.prisma.auditRun.findUnique({ where: { crawlId } });
+    if (!auditRun) {
+      return [];
+    }
+    return this.prisma.auditIssue.findMany({
+      where: { auditRunId: auditRun.id },
+      include: { rule: true },
+      orderBy: { priorityScore: "desc" },
+    });
+  }
+
+  async getIssue(
+    organizationId: string,
+    projectId: string,
+    siteId: string,
+    crawlId: string,
+    issueId: string,
+  ) {
+    await this.getOrThrow(organizationId, projectId, siteId, crawlId);
+    const auditRun = await this.prisma.auditRun.findUnique({ where: { crawlId } });
+    const issue = auditRun
+      ? await this.prisma.auditIssue.findUnique({
+          where: { id: issueId },
+          include: { rule: true, occurrences: { include: { page: true } } },
+        })
+      : null;
+    if (!issue || issue.auditRunId !== auditRun?.id) {
+      throw new NotFoundException("Issue not found.");
+    }
+    return issue;
+  }
+
   async cancel(organizationId: string, projectId: string, siteId: string, crawlId: string) {
     const crawl = await this.getOrThrow(organizationId, projectId, siteId, crawlId);
 

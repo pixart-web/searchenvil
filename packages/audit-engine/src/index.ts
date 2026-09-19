@@ -6,3 +6,5 @@ export const AUDIT_ENGINE_PACKAGE_VERSION = "0.1.0";
 export * from "./types";
 export * from "./rule-registry";
 export * from "./run-audit";
+export * from "./scoring";
+export * from "./priority";

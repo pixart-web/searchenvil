@@ -9,6 +9,7 @@ const brokenInternalLink: AuditRuleDefinition = {
   defaultSeverity: "HIGH",
   defaultEffort: "EASY",
   weight: 7,
+  confidence: 1.0,
   description: "The page links internally to another page that returned a 4xx/5xx status.",
   whyItMatters:
     "Broken internal links waste crawl budget, break the user journey, and dilute the link equity that would otherwise flow to a working page.",
@@ -41,6 +42,7 @@ const internalLinkToRedirect: AuditRuleDefinition = {
   defaultSeverity: "LOW",
   defaultEffort: "EASY",
   weight: 2,
+  confidence: 0.85,
   description: "The page links internally to a URL that itself redirects elsewhere.",
   whyItMatters:
     "Linking directly to the final URL avoids an unnecessary redirect hop, which is faster for users and preserves link equity more efficiently.",
@@ -72,6 +74,7 @@ const orphanPage: AuditRuleDefinition = {
   defaultSeverity: "MEDIUM",
   defaultEffort: "MEDIUM",
   weight: 4,
+  confidence: 0.7,
   description: "No other crawled page links internally to this one.",
   whyItMatters:
     "A page with no internal links pointing to it is hard for both users and search engines to discover through normal navigation — it depends entirely on being linked externally or listed in a sitemap.",

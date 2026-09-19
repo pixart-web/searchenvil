@@ -111,6 +111,16 @@ describe("processAuditJob", () => {
     });
     expect(occurrences).toHaveLength(1);
     expect(occurrences[0]?.pageId).toBe(crawlPage.id);
+
+    expect(missingTitleIssue?.severity).toBe("HIGH");
+    expect(missingTitleIssue?.priorityScore).toBeGreaterThan(0);
+    expect(["HIGH", "MEDIUM", "LOW"]).toContain(missingTitleIssue?.impact);
+
+    const score = await prisma.auditScore.findUniqueOrThrow({ where: { auditRunId: auditRun.id } });
+    expect(score.overallScore).toBeGreaterThanOrEqual(0);
+    expect(score.overallScore).toBeLessThan(100); // this fixture has real defects
+    expect(score.categoryScores).toHaveProperty("CONTENT");
+    expect(score.explanation).toHaveProperty("scoringVersion");
   });
 
   it("produces no AuditIssue rows for a clean site", async () => {
@@ -152,6 +162,9 @@ describe("processAuditJob", () => {
     const issues = await prisma.auditIssue.findMany({ where: { auditRunId: auditRun.id } });
     expect(issues).toHaveLength(0);
     expect(auditRun.status).toBe("COMPLETED");
+
+    const score = await prisma.auditScore.findUniqueOrThrow({ where: { auditRunId: auditRun.id } });
+    expect(score.overallScore).toBe(100);
   });
 
   it("marks the AuditRun FAILED when building the site input throws", async () => {

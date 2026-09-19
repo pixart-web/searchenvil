@@ -14,6 +14,9 @@ export type IssueSeverity = (typeof ISSUE_SEVERITIES)[number];
 export const EFFORT_LEVELS = ["EASY", "MEDIUM", "HARD"] as const;
 export type EffortLevel = (typeof EFFORT_LEVELS)[number];
 
+export const IMPACT_LABELS = ["HIGH", "MEDIUM", "LOW"] as const;
+export type ImpactLabel = (typeof IMPACT_LABELS)[number];
+
 export interface HeadingInput {
   level: number;
   text: string;
@@ -88,8 +91,19 @@ export interface AuditRuleDefinition {
   category: IssueCategory;
   defaultSeverity: IssueSeverity;
   defaultEffort: EffortLevel;
-  /** Relative weight in Search Health scoring (Phase 08) — higher matters more. */
+  /** Relative weight in Search Health scoring — higher matters more. */
   weight: number;
+  /**
+   * How certain a firing of this rule actually indicates a problem, from 0
+   * to 1. Deterministic defects (a 404, malformed JSON) are 1.0.
+   * Contextual findings that are often intentional (noindex, missing
+   * canonical, thin content) are lower — see docs/SCORING.md and
+   * docs/AUDIT_ENGINE.md ("Deterministic vs. contextual"). Used to scale
+   * both Search Health penalties and Forge Priority ranking so a
+   * low-confidence finding never outweighs a high-confidence one of
+   * similar severity.
+   */
+  confidence: number;
   description: string;
   whyItMatters: string;
   recommendation: string;

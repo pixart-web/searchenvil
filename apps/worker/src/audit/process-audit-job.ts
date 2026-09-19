@@ -1,9 +1,16 @@
-import { ALL_RULES, RULESET_VERSION, runAudit, type SiteInput } from "@searchenvil/audit-engine";
+import {
+  ALL_RULES,
+  RULESET_VERSION,
+  SCORING_VERSION,
+  computeSearchHealth,
+  prioritizeIssues,
+  runAudit,
+  type SiteInput,
+} from "@searchenvil/audit-engine";
 import type { PrismaClient } from "@searchenvil/database";
 import { logger } from "../logger";
 import { mapCrawlToSiteInput } from "./map-crawl-to-site-input";
 import { syncAuditRules } from "./sync-audit-rules";
-import { placeholderImpact, placeholderPriorityScore } from "./placeholder-priority";
 
 export interface ProcessAuditJobDeps {
   prisma: PrismaClient;
@@ -13,10 +20,10 @@ export interface ProcessAuditJobDeps {
 
 /**
  * Runs the audit engine against a completed crawl's persisted facts and
- * writes the results as AuditRun -> AuditIssue -> AuditOccurrence rows.
- * Priority/impact here are placeholders — see placeholder-priority.ts;
- * Phase 08 replaces them with the real scoring methodology without
- * changing this pipeline's shape.
+ * writes the results as AuditRun -> AuditIssue -> AuditOccurrence, plus a
+ * versioned AuditScore. Priority/impact/Search Health all come from
+ * @searchenvil/audit-engine's documented scoring methodology (see
+ * docs/SCORING.md) — this pipeline just persists what that package computes.
  */
 export async function processAuditJob(deps: ProcessAuditJobDeps, crawlId: string): Promise<void> {
   const { prisma } = deps;
@@ -41,26 +48,27 @@ export async function processAuditJob(deps: ProcessAuditJobDeps, crawlId: string
     const ruleIdByKey = await syncAuditRules(prisma, ALL_RULES);
     const site = await buildSiteInput(prisma, crawlId);
     const issues = runAudit(site, ALL_RULES);
+    const totalPages = site.pages.length;
+
+    const prioritized = new Map(prioritizeIssues(issues, totalPages).map((p) => [p.ruleKey, p]));
+    const health = computeSearchHealth(issues, totalPages);
 
     for (const issue of issues) {
       const ruleId = ruleIdByKey.get(issue.ruleKey);
-      if (!ruleId) continue; // Should be impossible — syncAuditRules just registered every rule.
+      const priority = prioritized.get(issue.ruleKey);
+      if (!ruleId || !priority) continue; // Should be impossible — both are derived from the same `issues`.
 
       const auditIssue = await prisma.auditIssue.create({
         data: {
           auditRunId: auditRun.id,
           ruleId,
           severity: issue.rule.defaultSeverity,
-          impact: placeholderImpact(issue.rule.defaultSeverity),
+          impact: priority.impact,
           effort: issue.rule.defaultEffort,
           affectedPageCount: issue.occurrences.length,
           title: issue.rule.name,
           summary: issue.rule.description,
-          priorityScore: placeholderPriorityScore(
-            issue.rule.defaultSeverity,
-            issue.rule.weight,
-            issue.occurrences.length,
-          ),
+          priorityScore: priority.priorityScore,
         },
       });
 
@@ -73,12 +81,34 @@ export async function processAuditJob(deps: ProcessAuditJobDeps, crawlId: string
       });
     }
 
+    await prisma.auditScore.upsert({
+      where: { auditRunId: auditRun.id },
+      create: {
+        auditRunId: auditRun.id,
+        scoringVersion: SCORING_VERSION,
+        overallScore: health.overallScore,
+        categoryScores: health.categoryScores,
+        explanation: health.explanation as unknown as object,
+      },
+      update: {
+        scoringVersion: SCORING_VERSION,
+        overallScore: health.overallScore,
+        categoryScores: health.categoryScores,
+        explanation: health.explanation as unknown as object,
+      },
+    });
+
     await prisma.auditRun.update({
       where: { id: auditRun.id },
       data: { status: "COMPLETED", finishedAt: new Date() },
     });
 
-    logger.info("audit run finished", { crawlId, auditRunId: auditRun.id, issueCount: issues.length });
+    logger.info("audit run finished", {
+      crawlId,
+      auditRunId: auditRun.id,
+      issueCount: issues.length,
+      overallScore: health.overallScore,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error("audit run failed", { crawlId, error: message });

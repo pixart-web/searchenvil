@@ -15,6 +15,7 @@ const missingTitle: AuditRuleDefinition = {
   defaultSeverity: "HIGH",
   defaultEffort: "EASY",
   weight: 8,
+  confidence: 1.0,
   description: "The page has no <title> tag.",
   whyItMatters:
     "The title tag is one of the strongest on-page ranking signals and is typically what's shown as the clickable headline in search results.",
@@ -31,6 +32,7 @@ const duplicateTitle: AuditRuleDefinition = {
   defaultSeverity: "MEDIUM",
   defaultEffort: "MEDIUM",
   weight: 5,
+  confidence: 0.9,
   description: "Two or more pages share the exact same title tag.",
   whyItMatters:
     "Duplicate titles make it hard for search engines and users to distinguish between pages, and dilute the ranking signal each page could otherwise have.",
@@ -54,6 +56,7 @@ const titleSuspiciousLength: AuditRuleDefinition = {
   defaultSeverity: "LOW",
   defaultEffort: "EASY",
   weight: 2,
+  confidence: 0.6,
   description: `The title is shorter than ${TITLE_MIN_LENGTH} or longer than ${TITLE_MAX_LENGTH} characters.`,
   whyItMatters:
     "Very short titles waste an opportunity to describe the page; very long ones get truncated in search results. This is a guideline, not a hard rule — some titles are intentionally short.",
@@ -73,6 +76,7 @@ const missingMetaDescription: AuditRuleDefinition = {
   defaultSeverity: "MEDIUM",
   defaultEffort: "EASY",
   weight: 4,
+  confidence: 0.85,
   description: "The page has no meta description.",
   whyItMatters:
     "Without a meta description, search engines auto-generate a snippet from page content, which is often less compelling than a written summary.",
@@ -91,6 +95,7 @@ const duplicateMetaDescription: AuditRuleDefinition = {
   defaultSeverity: "MEDIUM",
   defaultEffort: "MEDIUM",
   weight: 3,
+  confidence: 0.8,
   description: "Two or more pages share the exact same meta description.",
   whyItMatters:
     "Duplicate descriptions give search results no way to differentiate between pages in the snippet users see.",
@@ -116,6 +121,7 @@ const metaDescriptionSuspiciousLength: AuditRuleDefinition = {
   defaultSeverity: "LOW",
   defaultEffort: "EASY",
   weight: 1,
+  confidence: 0.6,
   description: `The meta description is shorter than ${META_DESCRIPTION_MIN_LENGTH} or longer than ${META_DESCRIPTION_MAX_LENGTH} characters.`,
   whyItMatters:
     "Very short descriptions under-use the available snippet space; very long ones get truncated in search results.",
@@ -139,6 +145,7 @@ const lowWordCount: AuditRuleDefinition = {
   defaultSeverity: "NOTICE",
   defaultEffort: "HARD",
   weight: 3,
+  confidence: 0.4,
   description: `The page has fewer than ${LOW_WORD_COUNT_THRESHOLD} words of visible body text.`,
   whyItMatters:
     "Very thin pages often struggle to rank because they offer little substance for search engines to match against queries. Some page types (contact pages, simple landing pages) are legitimately short — treat this as a prompt to review, not a defect.",
@@ -157,6 +164,7 @@ const duplicateH1: AuditRuleDefinition = {
   defaultSeverity: "LOW",
   defaultEffort: "MEDIUM",
   weight: 2,
+  confidence: 0.7,
   description: "Two or more pages share the exact same H1 text.",
   whyItMatters:
     "Like duplicate titles, identical H1s across pages make it harder to signal what's distinct about each page.",
@@ -184,6 +192,7 @@ const missingAltText: AuditRuleDefinition = {
   defaultSeverity: "MEDIUM",
   defaultEffort: "EASY",
   weight: 3,
+  confidence: 0.9,
   description: "One or more images on the page have no alt attribute at all.",
   whyItMatters:
     "Alt text is read aloud by screen readers and used by search engines to understand image content — images without it are invisible to both.",

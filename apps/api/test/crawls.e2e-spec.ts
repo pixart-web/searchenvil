@@ -203,4 +203,106 @@ describe("Crawls (e2e)", () => {
       .set("Cookie", bob.cookieHeader);
     expect(bobPagesRes.status).toBe(403);
   });
+
+  it("returns 404 for score/issues before an audit run exists, then the real data once one does", async () => {
+    const server = app.getHttpServer();
+    const startRes = await request(server)
+      .post(crawlsBase(alice, aliceSite))
+      .set("Cookie", alice.cookieHeader)
+      .set("x-csrf-token", alice.csrfToken)
+      .send({});
+    const crawlId = startRes.body.id;
+
+    const noScoreYet = await request(server)
+      .get(`${crawlsBase(alice, aliceSite)}/${crawlId}/score`)
+      .set("Cookie", alice.cookieHeader);
+    expect(noScoreYet.status).toBe(404);
+
+    const noIssuesYet = await request(server)
+      .get(`${crawlsBase(alice, aliceSite)}/${crawlId}/issues`)
+      .set("Cookie", alice.cookieHeader);
+    expect(noIssuesYet.status).toBe(200);
+    expect(noIssuesYet.body).toEqual([]);
+
+    // Seed a real AuditRun/AuditScore/AuditIssue as the worker would.
+    const rule = await prisma.auditRule.upsert({
+      where: { ruleKey: "missing-title" },
+      create: {
+        ruleKey: "missing-title",
+        name: "Missing title tag",
+        category: "CONTENT",
+        defaultSeverity: "HIGH",
+        defaultEffort: "EASY",
+        weight: 8,
+        description: "d",
+        whyItMatters: "w",
+        recommendation: "r",
+      },
+      update: {},
+    });
+    const auditRun = await prisma.auditRun.create({
+      data: {
+        crawlId,
+        rulesetVersion: "test",
+        status: "COMPLETED",
+        score: {
+          create: {
+            scoringVersion: "test",
+            overallScore: 87,
+            categoryScores: { CONTENT: 87 },
+            explanation: { scoringVersion: "test" },
+          },
+        },
+      },
+    });
+    const crawlPage = await prisma.crawlPage.create({
+      data: {
+        crawlId,
+        requestedUrl: "https://example.com/",
+        normalizedUrl: "https://example.com/no-title",
+        finalUrl: "https://example.com/no-title",
+        statusCode: 200,
+        isIndexable: true,
+      },
+    });
+    const issue = await prisma.auditIssue.create({
+      data: {
+        auditRunId: auditRun.id,
+        ruleId: rule.id,
+        severity: "HIGH",
+        impact: "HIGH",
+        effort: "EASY",
+        affectedPageCount: 1,
+        title: "Missing title tag",
+        summary: "d",
+        priorityScore: 42,
+        occurrences: { create: [{ pageId: crawlPage.id, evidence: {} }] },
+      },
+    });
+
+    const scoreRes = await request(server)
+      .get(`${crawlsBase(alice, aliceSite)}/${crawlId}/score`)
+      .set("Cookie", alice.cookieHeader);
+    expect(scoreRes.status).toBe(200);
+    expect(scoreRes.body.overallScore).toBe(87);
+
+    const issuesRes = await request(server)
+      .get(`${crawlsBase(alice, aliceSite)}/${crawlId}/issues`)
+      .set("Cookie", alice.cookieHeader);
+    expect(issuesRes.status).toBe(200);
+    expect(issuesRes.body).toHaveLength(1);
+    expect(issuesRes.body[0].rule.ruleKey).toBe("missing-title");
+
+    const issueDetailRes = await request(server)
+      .get(`${crawlsBase(alice, aliceSite)}/${crawlId}/issues/${issue.id}`)
+      .set("Cookie", alice.cookieHeader);
+    expect(issueDetailRes.status).toBe(200);
+    expect(issueDetailRes.body.occurrences).toHaveLength(1);
+
+    // Bob can't see any of it.
+    const bobScoreRes = await request(server)
+      .get(`${crawlsBase(alice, aliceSite)}/${crawlId}/score`)
+      .set("Cookie", bob.cookieHeader);
+    expect(bobScoreRes.status).toBe(403);
+  });
 });

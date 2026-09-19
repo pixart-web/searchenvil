@@ -9,6 +9,7 @@ const pageNoindexed: AuditRuleDefinition = {
   defaultSeverity: "NOTICE",
   defaultEffort: "EASY",
   weight: 3,
+  confidence: 0.3,
   description: "The page declares noindex via meta robots or the X-Robots-Tag header.",
   whyItMatters:
     "A noindex page will never appear in search results. This is often intentional (staging pages, thank-you pages), so it's flagged for review rather than treated as an automatic error — confirm it's meant to be excluded.",
@@ -25,6 +26,7 @@ const conflictingIndexabilitySignals: AuditRuleDefinition = {
   defaultSeverity: "MEDIUM",
   defaultEffort: "EASY",
   weight: 4,
+  confidence: 0.9,
   description: "Meta robots and the X-Robots-Tag header disagree about whether to index the page.",
   whyItMatters:
     "When on-page and header-level directives conflict, different crawlers may resolve the ambiguity differently, leading to unpredictable indexing behavior.",
@@ -43,6 +45,7 @@ const missingCanonical: AuditRuleDefinition = {
   defaultSeverity: "NOTICE",
   defaultEffort: "EASY",
   weight: 2,
+  confidence: 0.4,
   description: "The page has no canonical tag.",
   whyItMatters:
     "A canonical tag tells search engines which URL is the authoritative version when the same content is reachable multiple ways. Not every page needs one — this is contextual, not a hard error.",
@@ -59,6 +62,7 @@ const invalidCanonicalUrl: AuditRuleDefinition = {
   defaultSeverity: "MEDIUM",
   defaultEffort: "EASY",
   weight: 4,
+  confidence: 1.0,
   description: "The canonical tag's URL is not a well-formed absolute URL.",
   whyItMatters:
     "A malformed canonical is ignored or misinterpreted by search engines, which defeats its purpose of consolidating duplicate content signals.",
@@ -77,6 +81,7 @@ const canonicalPointsToNon200: AuditRuleDefinition = {
   defaultSeverity: "MEDIUM",
   defaultEffort: "EASY",
   weight: 5,
+  confidence: 0.9,
   description: "The canonical URL resolves to a page in this crawl that did not return 200.",
   whyItMatters:
     "A canonical should point to the working, authoritative version of a page. Pointing to a broken or redirecting URL undermines the consolidation it's meant to provide.",
@@ -101,6 +106,7 @@ const sitemapContainsNonIndexableUrl: AuditRuleDefinition = {
   defaultSeverity: "MEDIUM",
   defaultEffort: "EASY",
   weight: 4,
+  confidence: 0.8,
   description: "A URL in the sitemap resolves to a page that is set to noindex.",
   whyItMatters:
     "Listing noindex pages in a sitemap sends search engines a contradictory signal — you're asking them to crawl a page you've also told them not to index.",

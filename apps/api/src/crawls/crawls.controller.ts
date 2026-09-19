@@ -64,6 +64,37 @@ export class CrawlsController {
     });
   }
 
+  @Get(":crawlId/score")
+  getScore(
+    @Param("organizationId") organizationId: string,
+    @Param("projectId") projectId: string,
+    @Param("siteId") siteId: string,
+    @Param("crawlId") crawlId: string,
+  ) {
+    return this.crawlsService.getScore(organizationId, projectId, siteId, crawlId);
+  }
+
+  @Get(":crawlId/issues")
+  listIssues(
+    @Param("organizationId") organizationId: string,
+    @Param("projectId") projectId: string,
+    @Param("siteId") siteId: string,
+    @Param("crawlId") crawlId: string,
+  ) {
+    return this.crawlsService.listIssues(organizationId, projectId, siteId, crawlId);
+  }
+
+  @Get(":crawlId/issues/:issueId")
+  getIssue(
+    @Param("organizationId") organizationId: string,
+    @Param("projectId") projectId: string,
+    @Param("siteId") siteId: string,
+    @Param("crawlId") crawlId: string,
+    @Param("issueId") issueId: string,
+  ) {
+    return this.crawlsService.getIssue(organizationId, projectId, siteId, crawlId, issueId);
+  }
+
   @Get(":crawlId/pages/:pageId")
   getPage(
     @Param("organizationId") organizationId: string,

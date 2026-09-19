@@ -67,10 +67,9 @@ errors"), rules are severity-graded to reflect how certain the finding actually 
 - **`blocked-by-robots` as its own rule** — the crawler already refuses to fetch robots-disallowed
   pages (Phase 05), so there's no page row to attach a finding to without extra bookkeeping the
   crawler doesn't do today.
-- **Real prioritization/scoring** — `AuditIssue.priorityScore`/`impact` are written by a
-  deliberately simple placeholder (`apps/worker/src/audit/placeholder-priority.ts`) right now.
-  Phase 08 ("Search Health & Forge Priorities") replaces it with the documented methodology
-  without changing anything about how rules themselves work.
+- Prioritization/scoring is no longer a placeholder — see `docs/SCORING.md` for the real,
+  documented Search Health and Forge Priorities methodology (Phase 08), which both consume the
+  same `AuditIssueResult[]` this package produces.
 
 ## Worker integration
 

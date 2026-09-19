@@ -91,9 +91,15 @@ Nested under a site: `/organizations/:organizationId/projects/:projectId/sites/:
 | PATCH | `.../crawls/:crawlId/cancel` | Request cancellation — idempotent; a no-op if the crawl is already in a terminal state |
 | GET | `.../crawls/:crawlId/pages` | Paginated (`?page=&pageSize=`, max 100/page) list of crawled pages |
 | GET | `.../crawls/:crawlId/pages/:pageId` | A single page's full facts plus its images, structured data, and outbound links |
+| GET | `.../crawls/:crawlId/score` | The crawl's Search Health `AuditScore` (`404` until the audit run finishes — see `docs/SCORING.md`) |
+| GET | `.../crawls/:crawlId/issues` | Forge Priorities — every `AuditIssue` for the crawl, ranked by `priorityScore` descending (`[]` before the audit run finishes) |
+| GET | `.../crawls/:crawlId/issues/:issueId` | One issue's full detail: rule info, evidence, and every affected page (`AuditOccurrence`) |
 
 `Crawl.status` progresses `PENDING → DISCOVERING → CRAWLING → COMPLETED`, or `FAILED` /
-`CANCELLED`. See `docs/CRAWLER.md` and `docs/ARCHITECTURE.md` for what happens at each stage.
+`CANCELLED`. See `docs/CRAWLER.md` and `docs/ARCHITECTURE.md` for what happens at each stage. The
+moment a crawl reaches `COMPLETED`, an audit run is triggered automatically — poll `GET
+.../crawls/:crawlId/score` (or `/issues`) afterward; a `404`/`[]` just means the audit hasn't
+finished yet, not that anything went wrong.
 Cancellation is polled by the worker (checked every ~2s against the DB), so there can be a short
 delay between requesting cancellation and the crawl actually stopping — in-flight page fetches
 are allowed to finish, only new ones are prevented from starting.

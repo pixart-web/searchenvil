@@ -9,6 +9,7 @@ const invalidStructuredData: AuditRuleDefinition = {
   defaultSeverity: "MEDIUM",
   defaultEffort: "MEDIUM",
   weight: 4,
+  confidence: 1.0,
   description: "A JSON-LD structured data block on the page failed to parse.",
   whyItMatters:
     "Malformed structured data is ignored entirely by search engines — any rich-result eligibility it was meant to provide (review stars, breadcrumbs, etc.) is lost.",

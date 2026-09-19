@@ -9,6 +9,7 @@ const httpServerError: AuditRuleDefinition = {
   defaultSeverity: "CRITICAL",
   defaultEffort: "MEDIUM",
   weight: 10,
+  confidence: 1.0,
   description: "The page returned a 5xx server error instead of content.",
   whyItMatters:
     "A 5xx response means the server itself failed to generate the page — search engines will drop it from the index if it persists, and every visitor hitting it sees a broken page.",
@@ -27,6 +28,7 @@ const httpClientError: AuditRuleDefinition = {
   defaultSeverity: "HIGH",
   defaultEffort: "MEDIUM",
   weight: 8,
+  confidence: 1.0,
   description: "The page returned a 4xx error (e.g. 404 Not Found).",
   whyItMatters:
     "A 4xx page is unreachable for both users and search engines. If it's linked from elsewhere on the site or indexed already, it wastes crawl budget and breaks the user journey.",
@@ -49,6 +51,7 @@ const redirectChainTooLong: AuditRuleDefinition = {
   defaultSeverity: "MEDIUM",
   defaultEffort: "EASY",
   weight: 4,
+  confidence: 0.9,
   description: "The page is reached through two or more chained redirects.",
   whyItMatters:
     "Each redirect hop adds latency and dilutes link equity; search engines may also give up following very long chains.",
@@ -67,6 +70,7 @@ const missingH1: AuditRuleDefinition = {
   defaultSeverity: "HIGH",
   defaultEffort: "EASY",
   weight: 6,
+  confidence: 0.85,
   description: "The page has no H1 heading.",
   whyItMatters:
     "The H1 is the primary signal of what a page is about, for both readers scanning the page and search engines. Pages without one lack a clear topical anchor.",
@@ -85,6 +89,7 @@ const multipleH1: AuditRuleDefinition = {
   defaultSeverity: "LOW",
   defaultEffort: "EASY",
   weight: 2,
+  confidence: 0.5,
   description: "The page has more than one H1 heading.",
   whyItMatters:
     "Multiple H1s dilute the page's topical signal — it's no longer clear which heading is the primary one. Not always harmful (some design systems use several intentionally), so treat this as worth reviewing rather than an automatic error.",
@@ -105,6 +110,7 @@ const nonHttpsPage: AuditRuleDefinition = {
   defaultSeverity: "HIGH",
   defaultEffort: "MEDIUM",
   weight: 7,
+  confidence: 1.0,
   description: "The page is served over an unencrypted HTTP connection.",
   whyItMatters:
     "Browsers flag HTTP pages as \"Not Secure,\" and search engines treat HTTPS as a ranking signal. Unencrypted connections are also vulnerable to tampering.",
@@ -121,6 +127,7 @@ const mixedContent: AuditRuleDefinition = {
   defaultSeverity: "MEDIUM",
   defaultEffort: "EASY",
   weight: 4,
+  confidence: 0.9,
   description: "An HTTPS page references HTTP (unencrypted) resources.",
   whyItMatters:
     "Browsers may block or warn about insecure sub-resources loaded on an otherwise secure page, and it undermines the security benefit of HTTPS.",
@@ -149,6 +156,7 @@ const sitemapNotFound: AuditRuleDefinition = {
   defaultSeverity: "LOW",
   defaultEffort: "EASY",
   weight: 2,
+  confidence: 0.5,
   description: "No XML sitemap was found via robots.txt or the default /sitemap.xml location.",
   whyItMatters:
     "A sitemap helps search engines discover and prioritize pages efficiently, especially on larger sites. Small sites can rely on internal links alone, so this is a minor, contextual finding.",
@@ -171,6 +179,7 @@ const sitemapUrlError: AuditRuleDefinition = {
   defaultSeverity: "MEDIUM",
   defaultEffort: "EASY",
   weight: 5,
+  confidence: 0.95,
   description: "A URL listed in the sitemap returned a 4xx/5xx status when crawled.",
   whyItMatters:
     "Sitemaps should only list URLs that actually work — listing broken URLs wastes crawl budget and signals poor sitemap hygiene to search engines.",
