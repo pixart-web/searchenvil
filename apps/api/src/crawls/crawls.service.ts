@@ -110,10 +110,13 @@ export class CrawlsService {
     if (!auditRun) {
       return [];
     }
+    // Defensive cap — same rationale as IssuesService.list (docs/AUDIT_ENGINE.md's fixed rule
+    // registry bounds real-world issue counts well below this).
     return this.prisma.auditIssue.findMany({
       where: { auditRunId: auditRun.id },
       include: { rule: true },
       orderBy: { priorityScore: "desc" },
+      take: 500,
     });
   }
 

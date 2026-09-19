@@ -47,7 +47,11 @@ export class IssuesService {
       ];
     }
 
-    const issues = await this.prisma.auditIssue.findMany({ where, include: { rule: true } });
+    // A defensive cap, not a real-world limit — the audit engine's rule registry is a fixed,
+    // small set (docs/AUDIT_ENGINE.md), so a crawl can never actually produce more distinct
+    // issues than there are rules. This just bounds the query at the DB layer instead of trusting
+    // that invariant implicitly.
+    const issues = await this.prisma.auditIssue.findMany({ where, include: { rule: true }, take: 500 });
 
     return this.sortIssues(issues, filters.sortBy ?? "priority", filters.sortOrder ?? "desc");
   }

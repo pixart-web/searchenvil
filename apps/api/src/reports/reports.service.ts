@@ -21,9 +21,13 @@ export class ReportsService {
     const site = await this.findPrimarySite(projectId);
     if (!site) return [];
 
+    // Capped — a site accumulates one crawl per audit run indefinitely, so this list otherwise
+    // grows unbounded over a project's lifetime. The 50 most recent completed, scored crawls is
+    // far more report history than anyone reasonably needs to browse from a single list.
     const crawls = await this.prisma.crawl.findMany({
       where: { siteId: site.id, status: "COMPLETED" },
       orderBy: { createdAt: "desc" },
+      take: 50,
       include: { auditRun: { include: { score: true } } },
     });
 
