@@ -296,4 +296,12 @@ describe("Crawl Comparison (e2e)", () => {
       .set("Cookie", bob.cookieHeader);
     expect(res.status).toBe(403);
   });
+
+  it("rejects a malformed baselineCrawlId instead of passing it through to the database", async () => {
+    const server = app.getHttpServer();
+    const res = await request(server)
+      .get(`${crawlsBase(alice)}/${currentCrawlId}/compare?baselineCrawlId=not-a-uuid`)
+      .set("Cookie", alice.cookieHeader);
+    expect(res.status).toBe(400);
+  });
 });

@@ -204,6 +204,31 @@ describe("Crawls (e2e)", () => {
     expect(bobPagesRes.status).toBe(403);
   });
 
+  it("rejects out-of-range or malformed pagination query params", async () => {
+    const server = app.getHttpServer();
+    const startRes = await request(server)
+      .post(crawlsBase(alice, aliceSite))
+      .set("Cookie", alice.cookieHeader)
+      .set("x-csrf-token", alice.csrfToken)
+      .send({});
+    const crawlId = startRes.body.id;
+
+    const negativePage = await request(server)
+      .get(`${crawlsBase(alice, aliceSite)}/${crawlId}/pages?page=-1`)
+      .set("Cookie", alice.cookieHeader);
+    expect(negativePage.status).toBe(400);
+
+    const hugePageSize = await request(server)
+      .get(`${crawlsBase(alice, aliceSite)}/${crawlId}/pages?pageSize=99999`)
+      .set("Cookie", alice.cookieHeader);
+    expect(hugePageSize.status).toBe(400);
+
+    const nonNumericPage = await request(server)
+      .get(`${crawlsBase(alice, aliceSite)}/${crawlId}/pages?page=not-a-number`)
+      .set("Cookie", alice.cookieHeader);
+    expect(nonNumericPage.status).toBe(400);
+  });
+
   it("returns 404 for score/issues before an audit run exists, then the real data once one does", async () => {
     const server = app.getHttpServer();
     const startRes = await request(server)

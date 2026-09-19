@@ -3,6 +3,8 @@ import { OrgRolesGuard } from "../auth/guards/org-roles.guard";
 import { RequireRole } from "../auth/decorators/require-role.decorator";
 import { CrawlsService } from "./crawls.service";
 import { StartCrawlDto } from "./dto/start-crawl.dto";
+import { ListCrawlPagesQueryDto } from "./dto/list-crawl-pages-query.dto";
+import { CompareCrawlQueryDto } from "./dto/compare-crawl-query.dto";
 
 @Controller("organizations/:organizationId/projects/:projectId/sites/:siteId/crawls")
 @UseGuards(OrgRolesGuard)
@@ -55,12 +57,11 @@ export class CrawlsController {
     @Param("projectId") projectId: string,
     @Param("siteId") siteId: string,
     @Param("crawlId") crawlId: string,
-    @Query("page") page?: string,
-    @Query("pageSize") pageSize?: string,
+    @Query() query: ListCrawlPagesQueryDto,
   ) {
     return this.crawlsService.listPages(organizationId, projectId, siteId, crawlId, {
-      page: page ? Number(page) : 1,
-      pageSize: pageSize ? Number(pageSize) : 25,
+      page: query.page ?? 1,
+      pageSize: query.pageSize ?? 25,
     });
   }
 
@@ -101,9 +102,9 @@ export class CrawlsController {
     @Param("projectId") projectId: string,
     @Param("siteId") siteId: string,
     @Param("crawlId") crawlId: string,
-    @Query("baselineCrawlId") baselineCrawlId?: string,
+    @Query() query: CompareCrawlQueryDto,
   ) {
-    return this.crawlsService.compare(organizationId, projectId, siteId, crawlId, baselineCrawlId);
+    return this.crawlsService.compare(organizationId, projectId, siteId, crawlId, query.baselineCrawlId);
   }
 
   @Get(":crawlId/pages/:pageId")

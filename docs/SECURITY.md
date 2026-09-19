@@ -1,9 +1,8 @@
 # Security
 
-This document tracks security controls as they're implemented, phase by phase (a full
-adversarial pass happens in Phase 17). It currently covers authentication and multi-tenancy
-(Phase 03); crawler SSRF protections, IDOR coverage on project/site/crawl resources, and the
-rest land as their phases do.
+This document tracks security controls as they've been implemented across the build, and was
+brought current in Phase 17 (a dedicated adversarial audit pass) after tracking incrementally
+phase by phase before that.
 
 ## Authentication
 
@@ -58,11 +57,66 @@ traces, file paths, or internal error details cross the API boundary.
 | `searchenvil_session` | yes | prod only | Lax | session token (opaque, hashed server-side) |
 | `searchenvil_csrf` | no | prod only | Lax | double-submit CSRF token |
 
+## Password reset
+
+`POST /auth/password-reset/{request,confirm}` (`apps/api/src/auth/auth.service.ts`):
+
+- The reset token is stored **hashed** (`hashSessionToken()`, the same SHA-256 scheme as session
+  tokens) — a leaked `PasswordResetToken` row can't be used to reset a password.
+- **Single-use and expiring**: `usedAt` is checked before honoring a token and set once it's
+  consumed; `PASSWORD_RESET_TTL_MINUTES` bounds its lifetime.
+- **No user enumeration**: `requestPasswordReset` returns the same `{ status: "ok" }` response
+  whether or not the email exists, and is rate-limited (`@Throttle`, 5/min) same as login/register.
+- **Session invalidation on reset**: a successful reset deletes every existing `Session` row for
+  that user, so a stolen session can't outlive a password reset.
+
+## Input validation
+
+Every mutating endpoint's request body goes through a `class-validator` DTO, and the global
+`ValidationPipe` (`apps/api/src/configure-app.ts`) runs with `whitelist: true` +
+`forbidNonWhitelisted: true` — an unrecognized field in a request body is rejected outright, not
+silently dropped or passed through. Query parameters are validated the same way wherever they
+affect behavior beyond a raw filter passthrough (e.g. `ListPagesQueryDto`,
+`ListCrawlPagesQueryDto`, `CompareCrawlQueryDto` — the latter two added in the Phase 17 audit
+after finding pagination/`baselineCrawlId` query params were being coerced with a bare `Number()`
+instead of validated, which could accept a negative, absurdly large, or non-numeric `pageSize`
+into `crawlsService.listPages`).
+
+## SQL injection
+
+All database access goes through Prisma's typed query builder — no `$queryRaw`/`$executeRaw`
+usage anywhere in `apps/api/src`, `apps/worker/src`, or `packages/*/src` (verified by a full-repo
+grep as part of the Phase 17 audit), so there's no hand-built SQL for user input to inject into.
+
+## CORS
+
+`app.enableCors({ origin: process.env.WEB_URL ?? "http://localhost:3000", credentials: true })`
+(`apps/api/src/main.ts`) — a single explicit origin, not a wildcard, with credentials enabled.
+Appropriate for this deployment shape (one first-party frontend); would need revisiting only if
+multiple frontend origins were ever introduced.
+
+## HTTP security headers
+
+`helmet()` is applied globally in `apps/api/src/main.ts`, giving every response
+`Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `X-Frame-Options`,
+`Strict-Transport-Security`, and the rest of helmet's default header set — verified directly in
+Phase 12's live-verification `curl -D-` output, not just assumed from the middleware being present.
+
+## File download endpoints
+
+The only file-serving endpoint is the Reports CSV export (`GET
+.../reports/:crawlId/export.csv`, `docs/API.md`). It accepts no user-controlled filename or file
+path — the `Content-Disposition` filename is a hardcoded string, and the CSV body is generated
+in-memory from already-authorized database rows, not read from disk — so there's no path-traversal
+surface here.
+
 ## What's deliberately not yet implemented (tracked, not forgotten)
 
 - Email verification enforcement (the `User.emailVerifiedAt` column exists; nothing currently
-  requires it before granting access) — revisit once outbound email is wired up.
-- Password reset flow (the `PasswordResetToken` table exists; no endpoints yet) — P1 for a
-  release candidate, tracked in `docs/BACKLOG.md` if not picked up before Phase 20.
-- CORS is currently a single allowed origin (`WEB_URL`); fine for this deployment shape, revisit
-  if multiple frontend origins are ever needed.
+  requires it before granting access) — revisit once outbound email is wired up. Outbound email
+  itself is an explicit dev-stub (`apps/api/src/auth/mailer.service.ts` logs instead of sending),
+  which is intentional: the master build constraints exclude provisioning real third-party service
+  credentials or sending real email as part of this build.
+- No artificial timing-equalization between the "email found" and "email not found" branches of
+  password-reset request handling — low-severity given the identical response shape and existing
+  rate limiting, noted here rather than silently accepted.
