@@ -255,6 +255,35 @@ export interface CrawlComparisonSnapshot {
   categoryScores: Record<string, number>;
 }
 
+export interface ReportListItem {
+  crawlId: string;
+  finishedAt: string | null;
+  pagesCrawled: number;
+  overallScore: number;
+}
+
+export interface ReportIssue {
+  ruleKey: string;
+  category: IssueCategory;
+  title: string;
+  summary: string;
+  severity: IssueSeverity;
+  impact: ImpactLabel;
+  effort: EffortLevel;
+  affectedPageCount: number;
+  priorityScore: number;
+  recommendation: string;
+}
+
+export interface Report {
+  site: { id: string; displayName: string; rootUrl: string };
+  crawl: { id: string; startedAt: string | null; finishedAt: string | null; pagesCrawled: number };
+  score: { overallScore: number; categoryScores: Record<string, number> };
+  previousCrawl: { id: string; finishedAt: string | null; overallScore: number } | null;
+  scoreDelta: number | null;
+  issues: ReportIssue[];
+}
+
 export interface CrawlComparison {
   baseline: CrawlComparisonSnapshot;
   current: CrawlComparisonSnapshot;

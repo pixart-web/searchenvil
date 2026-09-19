@@ -172,6 +172,18 @@ small sample, not one row per crawled page.
 Returns `{ crawlId: null, totalPagesCrawled: 0, samples: [] }` (not an error) when no crawl has
 completed yet — same empty-state convention as Issues/Pages above.
 
+## Project-level Reports
+
+`/organizations/:organizationId/projects/:projectId/reports` — deterministic, shareable snapshots
+of a crawl's Search Health and issues, for the project's primary site. Built entirely from stored
+`AuditScore`/`AuditIssue` data, same "no generated narrative" principle as Crawl Comparison.
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `.../reports` | Every `COMPLETED` crawl with a score, newest first: `{ crawlId, finishedAt, pagesCrawled, overallScore }[]` |
+| GET | `.../reports/:crawlId` | Full report: `site`, `crawl`, `score` (overall + category breakdown), `previousCrawl`/`scoreDelta` (both `null` if there's no earlier scored crawl), and `issues[]` ranked by `priorityScore` descending. `404` if the crawl doesn't belong to this project's primary site or lacks a completed, scored audit. |
+| GET | `.../reports/:crawlId/export.csv` | The same report's issues as an RFC 4180 CSV (`Content-Type: text/csv`, `Content-Disposition: attachment`) — one row per issue, fields with commas/quotes/newlines correctly quoted. |
+
 ## Health
 
 | Method | Path | Auth | Description |
@@ -181,6 +193,5 @@ completed yet — same empty-state convention as Issues/Pages above.
 
 ## What's not here yet
 
-Comparisons and reports land in their respective phases (13–14) and will be documented here as they
-ship — see `docs/progress/PHASE-XX.md` for what's actually implemented at any point in time versus this
+See `docs/progress/PHASE-XX.md` for what's actually implemented at any point in time versus this
 being a forward-looking spec.

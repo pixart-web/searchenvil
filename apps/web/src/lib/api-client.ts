@@ -1,6 +1,15 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
+/**
+ * For the rare case of a direct browser navigation/download link (e.g. a
+ * CSV export) instead of a fetch() call — the session cookie rides along
+ * automatically on a same-site top-level GET, no apiFetch wrapper needed.
+ */
+export function apiUrl(path: string): string {
+  return `${API_URL}/api/v1${path}`;
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,
