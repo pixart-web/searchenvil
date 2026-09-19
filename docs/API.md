@@ -94,6 +94,35 @@ Nested under a site: `/organizations/:organizationId/projects/:projectId/sites/:
 | GET | `.../crawls/:crawlId/score` | The crawl's Search Health `AuditScore` (`404` until the audit run finishes — see `docs/SCORING.md`) |
 | GET | `.../crawls/:crawlId/issues` | Forge Priorities — every `AuditIssue` for the crawl, ranked by `priorityScore` descending (`[]` before the audit run finishes) |
 | GET | `.../crawls/:crawlId/issues/:issueId` | One issue's full detail: rule info, evidence, and every affected page (`AuditOccurrence`) |
+| GET | `.../crawls/:crawlId/compare` | Compares this crawl against `?baselineCrawlId=` (or, if omitted, the most recent earlier `COMPLETED` crawl of the same site). `404` if no baseline is available or either crawl lacks a completed, scored audit run. See `docs/PRODUCT.md` ("Crawl Comparison") and the response shape below. |
+
+`.../crawls/:crawlId/compare` returns:
+
+```jsonc
+{
+  "baseline": { "crawlId": "...", "finishedAt": "...", "overallScore": 70, "categoryScores": {"TECHNICAL": 60, ...} },
+  "current":  { "crawlId": "...", "finishedAt": "...", "overallScore": 85, "categoryScores": {"TECHNICAL": 90, ...} },
+  "scoreDelta": 15,
+  "categoryDeltas": { "TECHNICAL": 30, ... },     // null for a category missing from either side
+  "issues": {
+    "new": [ /* fired in current, not in baseline, matched by rule key */ ],
+    "resolved": [ /* fired in baseline, not in current */ ],
+    "persisting": [ /* fired in both */ ]
+  },
+  "pages": {
+    "matchedUrlCount": 12,      // URLs present in both crawls (only these are comparable)
+    "newPageCount": 2,          // URLs only in current
+    "removedPageCount": 1,      // URLs only in baseline
+    "improved": [ { "url": "...", "baselineIssueCount": 3, "currentIssueCount": 1 } ],
+    "worsened": [ { "url": "...", "baselineIssueCount": 0, "currentIssueCount": 2 } ]
+  }
+}
+```
+
+Everything here is derived from already-stored `AuditScore`/`AuditIssue`/`AuditOccurrence` rows —
+no audit re-run, no generated narrative. Issues are matched across crawls by the rule's stable
+`ruleKey` (rule ids/issue ids are per-`AuditRun`, so they can't be compared directly across
+crawls); pages are matched by `normalizedUrl` since `CrawlPage` ids are also per-crawl.
 
 `Crawl.status` progresses `PENDING → DISCOVERING → CRAWLING → COMPLETED`, or `FAILED` /
 `CANCELLED`. See `docs/CRAWLER.md` and `docs/ARCHITECTURE.md` for what happens at each stage. The

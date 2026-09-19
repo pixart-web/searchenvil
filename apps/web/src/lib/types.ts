@@ -232,3 +232,44 @@ export interface ProjectPerformance {
   totalPagesCrawled: number;
   samples: PerformanceSample[];
 }
+
+export interface ComparisonIssueSummary {
+  ruleKey: string;
+  title: string;
+  severity: IssueSeverity;
+  impact: ImpactLabel;
+  affectedPageCount: number;
+  priorityScore: number;
+}
+
+export interface ComparisonPageDelta {
+  url: string;
+  baselineIssueCount: number;
+  currentIssueCount: number;
+}
+
+export interface CrawlComparisonSnapshot {
+  crawlId: string;
+  finishedAt: string | null;
+  overallScore: number;
+  categoryScores: Record<string, number>;
+}
+
+export interface CrawlComparison {
+  baseline: CrawlComparisonSnapshot;
+  current: CrawlComparisonSnapshot;
+  scoreDelta: number;
+  categoryDeltas: Record<string, number | null>;
+  issues: {
+    new: ComparisonIssueSummary[];
+    resolved: ComparisonIssueSummary[];
+    persisting: ComparisonIssueSummary[];
+  };
+  pages: {
+    matchedUrlCount: number;
+    newPageCount: number;
+    removedPageCount: number;
+    improved: ComparisonPageDelta[];
+    worsened: ComparisonPageDelta[];
+  };
+}

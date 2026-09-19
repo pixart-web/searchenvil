@@ -95,6 +95,17 @@ export class CrawlsController {
     return this.crawlsService.getIssue(organizationId, projectId, siteId, crawlId, issueId);
   }
 
+  @Get(":crawlId/compare")
+  compare(
+    @Param("organizationId") organizationId: string,
+    @Param("projectId") projectId: string,
+    @Param("siteId") siteId: string,
+    @Param("crawlId") crawlId: string,
+    @Query("baselineCrawlId") baselineCrawlId?: string,
+  ) {
+    return this.crawlsService.compare(organizationId, projectId, siteId, crawlId, baselineCrawlId);
+  }
+
   @Get(":crawlId/pages/:pageId")
   getPage(
     @Param("organizationId") organizationId: string,
