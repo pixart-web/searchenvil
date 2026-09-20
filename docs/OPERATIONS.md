@@ -32,11 +32,14 @@ Not configured by this build — a managed Postgres provider's automated backup/
 recovery feature is the intended approach, not a custom backup script; nothing here assumes or
 implements one.
 
-## Rotating `AUTH_SECRET`
+## Forcing a global logout
 
-Rotating `AUTH_SECRET` invalidates every existing session (session tokens are hashed and verified
-using it) — every signed-in user is signed out. Not currently automated; plan a maintenance
-window or accept the mass-logout if rotating.
+There is no `AUTH_SECRET` or signing key in this system — session tokens are high-entropy random
+values, hashed with plain SHA-256 purely as a lookup index (no secret/pepper is involved; see
+`docs/SECURITY.md`), so there's nothing to "rotate" that would invalidate every session at once.
+To force every user out (e.g. a suspected mass session-store compromise), an operator would need
+to bulk-delete `Session` rows directly (`DELETE FROM sessions;`) — there's no dedicated endpoint
+or script for this today; it's an accepted gap for this release, not an oversight.
 
 ## Known operational limits (see relevant docs for detail)
 

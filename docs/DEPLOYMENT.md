@@ -25,7 +25,6 @@ deployment needs:
 |---|---|
 | `DATABASE_URL` | A real, managed PostgreSQL connection string — not the dev docker-compose instance |
 | `REDIS_URL` | A real, managed Redis instance shared by the API and every worker replica |
-| `AUTH_SECRET` | Generate fresh with `openssl rand -base64 32` — **never reuse the dev placeholder** |
 | `WEB_URL` | The real frontend origin — CORS is a single explicit origin (`docs/SECURITY.md`) |
 | `NEXT_PUBLIC_API_URL` | Baked into the web build at **image build time** (see `apps/web/Dockerfile`'s `ARG`), not just container run time |
 | `CHROMIUM_EXECUTABLE_PATH` | Optional — omit to run without performance sampling; see `docs/PERFORMANCE.md` for what provisioning Chromium into the worker image/sidecar would require |
