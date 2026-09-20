@@ -1,33 +1,33 @@
-name: searchenvil
+name: searchanvil
 
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: searchenvil-postgres
+    container_name: searchanvil-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: searchenvil
-      POSTGRES_PASSWORD: searchenvil_dev_password
-      POSTGRES_DB: searchenvil
+      POSTGRES_USER: searchanvil
+      POSTGRES_PASSWORD: searchanvil_dev_password
+      POSTGRES_DB: searchanvil
     ports:
       - "5433:5432"
     volumes:
-      - searchenvil_postgres_data:/var/lib/postgresql/data
+      - searchanvil_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U searchenvil -d searchenvil"]
+      test: ["CMD-SHELL", "pg_isready -U searchanvil -d searchanvil"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   redis:
     image: redis:7-alpine
-    container_name: searchenvil-redis
+    container_name: searchanvil-redis
     restart: unless-stopped
     command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "6380:6379"
     volumes:
-      - searchenvil_redis_data:/data
+      - searchanvil_redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -35,5 +35,5 @@ services:
       retries: 10
 
 volumes:
-  searchenvil_postgres_data:
-  searchenvil_redis_data:
+  searchanvil_postgres_data:
+  searchanvil_redis_data:

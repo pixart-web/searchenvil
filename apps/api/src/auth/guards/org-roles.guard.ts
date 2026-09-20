@@ -5,7 +5,7 @@ import {
   Injectable,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { hasAtLeastRole, type OrganizationRole } from "@searchenvil/shared";
+import { hasAtLeastRole, type OrganizationRole } from "@searchanvil/shared";
 import type { Request } from "express";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { REQUIRED_ROLE_KEY } from "../decorators/require-role.decorator";

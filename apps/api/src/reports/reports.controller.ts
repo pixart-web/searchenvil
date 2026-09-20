@@ -26,7 +26,7 @@ export class ReportsController {
 
   @Get(":crawlId/export.csv")
   @Header("Content-Type", "text/csv")
-  @Header("Content-Disposition", 'attachment; filename="searchenvil-report.csv"')
+  @Header("Content-Disposition", 'attachment; filename="searchanvil-report.csv"')
   async exportCsv(
     @Param("organizationId") organizationId: string,
     @Param("projectId") projectId: string,

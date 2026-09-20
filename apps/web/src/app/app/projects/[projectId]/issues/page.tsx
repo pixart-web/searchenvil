@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { Badge, Input, Spinner, StatusState, type BadgeSeverity } from "@searchenvil/ui";
+import { Badge, Input, Spinner, StatusState, type BadgeSeverity } from "@searchanvil/ui";
 import { apiFetch } from "@/lib/api-client";
 import { resolveProjectOrg } from "@/lib/resolve-project-org";
 import { formatCategoryLabel } from "@/lib/format";

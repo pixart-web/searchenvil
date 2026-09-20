@@ -1,5 +1,5 @@
 {
-  "extends": "@searchenvil/tsconfig/nextjs.json",
+  "extends": "@searchanvil/tsconfig/nextjs.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": { "@/*": ["./src/*"] }

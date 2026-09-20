@@ -1,13 +1,13 @@
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
-import { prisma } from "@searchenvil/database";
-import type { MetricsCollector } from "@searchenvil/performance";
+import { prisma } from "@searchanvil/database";
+import type { MetricsCollector } from "@searchanvil/performance";
 import { processPerformanceJob } from "./process-performance-job";
 
 async function seedCrawlWithPages(pageCount: number): Promise<{ crawlId: string; pageIds: string[]; cleanup: () => Promise<void> }> {
   const suffix = randomUUID();
   const user = await prisma.user.create({
-    data: { email: `perf-test-${suffix}@searchenvil.test`, name: "Perf Test", passwordHash: "x" },
+    data: { email: `perf-test-${suffix}@searchanvil.test`, name: "Perf Test", passwordHash: "x" },
   });
   const org = await prisma.organization.create({
     data: {

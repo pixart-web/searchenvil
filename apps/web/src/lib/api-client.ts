@@ -37,7 +37,7 @@ export interface ApiFetchOptions {
 }
 
 /**
- * Thin fetch wrapper for the SearchEnvil API: sends the session cookie
+ * Thin fetch wrapper for the SearchAnvil API: sends the session cookie
  * (credentials: "include"), attaches the CSRF header on mutating requests
  * (double-submit pattern — see docs/SECURITY.md), and normalizes error
  * bodies into ApiError.
@@ -50,7 +50,7 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
     headers["Content-Type"] = "application/json";
   }
   if (MUTATING_METHODS.has(method)) {
-    const csrfToken = readCookie("searchenvil_csrf");
+    const csrfToken = readCookie("searchanvil_csrf");
     if (csrfToken) {
       headers["x-csrf-token"] = csrfToken;
     }

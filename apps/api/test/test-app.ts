@@ -19,7 +19,7 @@ export async function createTestApp(
 }
 
 export function uniqueEmail(label: string): string {
-  return `${label}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@searchenvil.test`;
+  return `${label}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@searchanvil.test`;
 }
 
 /** Parses `Set-Cookie` response headers into a "name=value; name2=value2" Cookie header string. */

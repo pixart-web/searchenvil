@@ -94,7 +94,7 @@ describe("Auth (e2e)", () => {
     });
     const setCookies = registerRes.headers["set-cookie"] as unknown as string[];
     const cookieHeader = extractCookieHeader(setCookies);
-    const csrfToken = extractCookieValue(setCookies, "searchenvil_csrf");
+    const csrfToken = extractCookieValue(setCookies, "searchanvil_csrf");
 
     const meRes = await request(server).get("/api/v1/auth/me").set("Cookie", cookieHeader);
     expect(meRes.status).toBe(200);

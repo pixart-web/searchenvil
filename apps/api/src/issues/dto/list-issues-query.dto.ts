@@ -1,6 +1,6 @@
 import { Transform } from "class-transformer";
 import { IsIn, IsOptional, IsString } from "class-validator";
-import type { IssueCategory, IssueSeverity } from "@searchenvil/database";
+import type { IssueCategory, IssueSeverity } from "@searchanvil/database";
 
 const SEVERITIES: IssueSeverity[] = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "NOTICE"];
 const CATEGORIES: IssueCategory[] = [

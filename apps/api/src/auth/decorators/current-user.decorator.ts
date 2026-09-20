@@ -1,5 +1,5 @@
 import { createParamDecorator, type ExecutionContext } from "@nestjs/common";
-import type { User } from "@searchenvil/database";
+import type { User } from "@searchanvil/database";
 import type { Request } from "express";
 
 export type AuthenticatedUser = Omit<User, "passwordHash">;

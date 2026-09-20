@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import type { Site } from "@searchenvil/database";
+import type { Site } from "@searchanvil/database";
 import { PrismaService } from "../common/prisma/prisma.service";
 import { ProjectsService } from "../projects/projects.service";
 

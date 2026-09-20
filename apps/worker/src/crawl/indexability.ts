@@ -1,7 +1,7 @@
 /**
  * Direct-signal derivation only (does the page literally declare noindex?)
  * — not an SEO judgment about whether that's good or bad. That
- * interpretation belongs to @searchenvil/audit-engine. See
+ * interpretation belongs to @searchanvil/audit-engine. See
  * docs/ARCHITECTURE.md ("Crawler ≠ Audit Engine").
  */
 export function computeIsIndexable(

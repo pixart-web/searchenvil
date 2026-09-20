@@ -1,5 +1,5 @@
 {
-  "name": "@searchenvil/performance",
+  "name": "@searchanvil/performance",
   "version": "0.1.0",
   "private": true,
   "main": "dist/index.js",
@@ -13,12 +13,12 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@searchenvil/shared": "workspace:*",
+    "@searchanvil/shared": "workspace:*",
     "playwright-core": "^1.49.1"
   },
   "devDependencies": {
-    "@searchenvil/eslint-config": "workspace:*",
-    "@searchenvil/tsconfig": "workspace:*",
+    "@searchanvil/eslint-config": "workspace:*",
+    "@searchanvil/tsconfig": "workspace:*",
     "@types/node": "^22.10.5",
     "eslint": "^8.57.1",
     "typescript": "^5.7.3",

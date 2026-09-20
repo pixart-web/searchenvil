@@ -1,5 +1,5 @@
 {
-  "name": "@searchenvil/worker",
+  "name": "@searchanvil/worker",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,20 +12,20 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@searchenvil/database": "workspace:*",
-    "@searchenvil/queue": "workspace:*",
-    "@searchenvil/shared": "workspace:*",
-    "@searchenvil/crawler": "workspace:*",
-    "@searchenvil/audit-engine": "workspace:*",
-    "@searchenvil/performance": "workspace:*"
+    "@searchanvil/database": "workspace:*",
+    "@searchanvil/queue": "workspace:*",
+    "@searchanvil/shared": "workspace:*",
+    "@searchanvil/crawler": "workspace:*",
+    "@searchanvil/audit-engine": "workspace:*",
+    "@searchanvil/performance": "workspace:*"
   },
   "devDependencies": {
-    "@searchenvil/tsconfig": "workspace:*",
+    "@searchanvil/tsconfig": "workspace:*",
     "@types/node": "^22.10.5",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8",
     "eslint": "^8.57.1",
-    "@searchenvil/eslint-config": "workspace:*"
+    "@searchanvil/eslint-config": "workspace:*"
   }
 }

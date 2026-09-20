@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import type { OrganizationMember, OrganizationRole } from "@searchenvil/database";
+import type { OrganizationMember, OrganizationRole } from "@searchanvil/database";
 import { PrismaService } from "../common/prisma/prisma.service";
 
 @Injectable()

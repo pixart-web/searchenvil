@@ -1,13 +1,13 @@
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
-import { prisma } from "@searchenvil/database";
-import type { CrawlConfig, CrawlPageResult, CrawlResult, RunCrawlOptions } from "@searchenvil/crawler";
+import { prisma } from "@searchanvil/database";
+import type { CrawlConfig, CrawlPageResult, CrawlResult, RunCrawlOptions } from "@searchanvil/crawler";
 import { processCrawlJob } from "./process-crawl-job";
 
 async function seedCrawl(): Promise<{ crawlId: string; cleanup: () => Promise<void> }> {
   const suffix = randomUUID();
   const user = await prisma.user.create({
-    data: { email: `worker-test-${suffix}@searchenvil.test`, name: "Worker Test", passwordHash: "x" },
+    data: { email: `worker-test-${suffix}@searchanvil.test`, name: "Worker Test", passwordHash: "x" },
   });
   const org = await prisma.organization.create({
     data: {

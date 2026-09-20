@@ -138,7 +138,7 @@ prerequisite (`CHROMIUM_EXECUTABLE_PATH`), with graceful degradation (warn + ski
 - The installed Chromium revision didn't match what `playwright-core@1.49.1` expected — fixed by
   running `playwright install chromium` to fetch the matching revision, then verifying it actually
   works with a standalone navigation test before wiring it into the worker.
-- Missing `@searchenvil/performance` workspace dependency in `apps/worker/package.json` — added and
+- Missing `@searchanvil/performance` workspace dependency in `apps/worker/package.json` — added and
   reinstalled.
 - A test's `cleanup` callback returned `Promise<Organization>` instead of `Promise<void>` (a type
   error, not a runtime bug) — wrapped in an explicit block.

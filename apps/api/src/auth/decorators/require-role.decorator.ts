@@ -1,5 +1,5 @@
 import { SetMetadata } from "@nestjs/common";
-import type { OrganizationRole } from "@searchenvil/shared";
+import type { OrganizationRole } from "@searchanvil/shared";
 
 export const REQUIRED_ROLE_KEY = "requiredOrganizationRole";
 

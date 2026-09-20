@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 declare global {
   // eslint-disable-next-line no-var
-  var __searchenvilPrisma: PrismaClient | undefined;
+  var __searchanvilPrisma: PrismaClient | undefined;
 }
 
 function createPrismaClient(): PrismaClient {
@@ -13,10 +13,10 @@ function createPrismaClient(): PrismaClient {
 
 // Reuse a single PrismaClient across hot reloads in development so we don't
 // exhaust Postgres connections when Next.js/Nest recompiles modules.
-export const prisma: PrismaClient = globalThis.__searchenvilPrisma ?? createPrismaClient();
+export const prisma: PrismaClient = globalThis.__searchanvilPrisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
-  globalThis.__searchenvilPrisma = prisma;
+  globalThis.__searchanvilPrisma = prisma;
 }
 
 export * from "@prisma/client";

@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Button, FieldError, Input, Label } from "@searchenvil/ui";
+import { Button, FieldError, Input, Label } from "@searchanvil/ui";
 import { apiFetch, ApiError } from "@/lib/api-client";
 import type { CurrentUser } from "@/lib/types";
 
@@ -33,7 +33,7 @@ export default function LoginPage(): React.ReactElement {
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-ember-400">SearchEnvil</p>
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-ember-400">SearchAnvil</p>
         <h1 className="mt-1 text-2xl font-semibold text-steel-100">Sign in</h1>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>

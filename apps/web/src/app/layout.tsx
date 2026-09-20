@@ -3,11 +3,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "SearchEnvil — Forge Better Search Performance",
-    template: "%s · SearchEnvil",
+    default: "SearchAnvil — Forge Better Search Performance",
+    template: "%s · SearchAnvil",
   },
   description:
-    "SearchEnvil crawls your website, identifies what actually matters and helps you understand what to fix first.",
+    "SearchAnvil crawls your website, identifies what actually matters and helps you understand what to fix first.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }): React.ReactElement {

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { AppShell, PROJECT_NAV_ITEMS, ProjectSwitcher } from "@searchenvil/ui";
+import { AppShell, PROJECT_NAV_ITEMS, ProjectSwitcher } from "@searchanvil/ui";
 import { NavLink } from "@/components/nav-link";
 
 export default function ShellDemoLayout({ children }: { children: React.ReactNode }): React.ReactElement {
@@ -18,7 +18,7 @@ export default function ShellDemoLayout({ children }: { children: React.ReactNod
       topbar={{
         right: (
           <span className="text-sm text-steel-400" aria-label="Signed in as demo user">
-            demo@searchenvil.com
+            demo@searchanvil.com
           </span>
         ),
       }}

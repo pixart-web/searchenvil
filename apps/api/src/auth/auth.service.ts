@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
-import { slugify } from "@searchenvil/shared";
-import type { Session, User } from "@searchenvil/database";
+import { slugify } from "@searchanvil/shared";
+import type { Session, User } from "@searchanvil/database";
 import { PrismaService } from "../common/prisma/prisma.service";
 import { hashPassword, verifyPassword } from "./password.util";
 import { generateSessionToken, hashSessionToken } from "./session.util";

@@ -1,5 +1,5 @@
 import type { Agent } from "undici";
-import { isValidHttpUrl, normalizeUrl } from "@searchenvil/shared";
+import { isValidHttpUrl, normalizeUrl } from "@searchanvil/shared";
 import { ConcurrencyPool } from "./concurrency-pool";
 import { safeFetch } from "./fetcher";
 import { extractPageFacts } from "./parser";

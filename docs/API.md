@@ -15,7 +15,7 @@ which also appears in error bodies and server logs for correlation.
 All routes require a valid session cookie unless marked **Public**. See
 [SECURITY.md](./SECURITY.md) for the session/CSRF model. Mutating requests
 (POST/PUT/PATCH/DELETE) on an authenticated route additionally require the `x-csrf-token` header
-to match the `searchenvil_csrf` cookie.
+to match the `searchanvil_csrf` cookie.
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
@@ -27,8 +27,8 @@ to match the `searchenvil_csrf` cookie.
 | POST | `/auth/password-reset/confirm` | Public | Consume a reset token, set a new password, invalidate all existing sessions |
 
 `POST /auth/register` body: `{ email, password (min 10 chars), name, organizationName }`.
-`POST /auth/login` body: `{ email, password }`. Both set `searchenvil_session` (httpOnly) and
-`searchenvil_csrf` (readable) cookies on success and return `{ user }` (never `passwordHash`).
+`POST /auth/login` body: `{ email, password }`. Both set `searchanvil_session` (httpOnly) and
+`searchanvil_csrf` (readable) cookies on success and return `{ user }` (never `passwordHash`).
 
 ## Organizations
 

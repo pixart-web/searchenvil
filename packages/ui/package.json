@@ -1,5 +1,5 @@
 {
-  "name": "@searchenvil/ui",
+  "name": "@searchanvil/ui",
   "version": "0.1.0",
   "private": true,
   "main": "dist/index.js",
@@ -20,12 +20,12 @@
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
-    "@searchenvil/tsconfig": "workspace:*",
+    "@searchanvil/tsconfig": "workspace:*",
     "@types/react": "^19.0.2",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8",
     "@types/node": "^22.10.5",
     "eslint": "^8.57.1",
-    "@searchenvil/eslint-config": "workspace:*"
+    "@searchanvil/eslint-config": "workspace:*"
   }
 }

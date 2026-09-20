@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import { isSameOrigin } from "@searchenvil/shared";
+import { isSameOrigin } from "@searchanvil/shared";
 import type {
   HeadingFact,
   ImageFact,

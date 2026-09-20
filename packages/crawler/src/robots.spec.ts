@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { isAllowedByRobots, parseRobotsTxt } from "./robots";
 
 const SAMPLE = `
-User-agent: SearchEnvilBot
+User-agent: SearchAnvilBot
 Disallow: /private/
 Allow: /private/public-page
 
@@ -17,7 +17,7 @@ Sitemap: https://example.com/sitemap-news.xml
 
 describe("parseRobotsTxt", () => {
   it("collects sitemap directives regardless of group", () => {
-    const robots = parseRobotsTxt(SAMPLE, "SearchEnvilBot/0.1");
+    const robots = parseRobotsTxt(SAMPLE, "SearchAnvilBot/0.1");
     expect(robots.sitemaps).toEqual([
       "https://example.com/sitemap.xml",
       "https://example.com/sitemap-news.xml",
@@ -25,7 +25,7 @@ describe("parseRobotsTxt", () => {
   });
 
   it("selects the most specific matching user-agent group", () => {
-    const robots = parseRobotsTxt(SAMPLE, "SearchEnvilBot/0.1");
+    const robots = parseRobotsTxt(SAMPLE, "SearchAnvilBot/0.1");
     expect(robots.rules).toEqual([
       { path: "/private/", allow: false },
       { path: "/private/public-page", allow: true },
@@ -64,7 +64,7 @@ describe("isAllowedByRobots", () => {
   });
 
   it("lets the longest matching rule win over a shorter conflicting one", () => {
-    const bot = parseRobotsTxt(SAMPLE, "SearchEnvilBot/0.1");
+    const bot = parseRobotsTxt(SAMPLE, "SearchAnvilBot/0.1");
     expect(isAllowedByRobots(bot, "/private/secret")).toBe(false);
     expect(isAllowedByRobots(bot, "/private/public-page")).toBe(true);
     expect(isAllowedByRobots(bot, "/private/public-page/extra")).toBe(true);

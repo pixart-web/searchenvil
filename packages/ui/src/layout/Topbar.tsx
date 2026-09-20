@@ -33,7 +33,7 @@ export function Topbar({ left, right, onToggleSidebar, className }: TopbarProps)
           </button>
         ) : null}
         <span className="font-mono text-xs uppercase tracking-[0.2em] text-ember-400">
-          SearchEnvil
+          SearchAnvil
         </span>
         {left}
       </div>

@@ -1,9 +1,9 @@
-import { DEFAULT_MAX_SAMPLES, selectSamplePages, type MetricsCollector } from "@searchenvil/performance";
-import type { PrismaClient } from "@searchenvil/database";
+import { DEFAULT_MAX_SAMPLES, selectSamplePages, type MetricsCollector } from "@searchanvil/performance";
+import type { PrismaClient } from "@searchanvil/database";
 import { logger } from "../logger";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
-const DEFAULT_USER_AGENT = "SearchEnvilBot/0.1 (+https://searchenvil.com/bot)";
+const DEFAULT_USER_AGENT = "SearchAnvilBot/0.1 (+https://searchanvil.com/bot)";
 
 export interface ProcessPerformanceJobDeps {
   prisma: PrismaClient;

@@ -1,10 +1,10 @@
-# Final Handoff — SearchEnvil Release Candidate
+# Final Handoff — SearchAnvil Release Candidate
 
 **Status: Release Candidate — Ready for External Audit. Never deployed.**
 
 ## What this is
 
-SearchEnvil ("Forge Better Search Performance") is a multi-tenant SaaS platform for website
+SearchAnvil ("Forge Better Search Performance") is a multi-tenant SaaS platform for website
 intelligence and technical SEO auditing, built end to end across 20 phases from an empty
 repository to this release candidate. It answers five questions for a website owner (health,
 what's wrong, what to fix first, which pages, did it improve — `docs/PRODUCT.md`) via a real,
@@ -100,4 +100,4 @@ what the output actually was) is in its own `docs/progress/PHASE-XX.md` rather t
 
 ---
 
-SearchEnvil has not been deployed. It is ready for the external final audit.
+SearchAnvil has not been deployed. It is ready for the external final audit.

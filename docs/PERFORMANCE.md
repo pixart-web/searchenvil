@@ -1,6 +1,6 @@
 # Performance analysis
 
-`@searchenvil/performance` + `apps/worker/src/performance` add real-browser Core Web Vitals
+`@searchanvil/performance` + `apps/worker/src/performance` add real-browser Core Web Vitals
 sampling on top of the crawl's static facts. This is deliberately a separate concern from the
 crawler (which only ever fetches HTML over HTTP) and from the audit engine (which only ever
 interprets facts already collected) — see `docs/ARCHITECTURE.md` ("Crawler ≠ Audit Engine"). The

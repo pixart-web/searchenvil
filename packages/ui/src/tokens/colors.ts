@@ -1,5 +1,5 @@
 /**
- * SearchEnvil brand tokens. This is the single source of truth for the hex
+ * SearchAnvil brand tokens. This is the single source of truth for the hex
  * values — apps/web/tailwind.config.ts mirrors these under theme.extend.colors.
  * Non-Tailwind consumers (e.g. chart libraries in later phases) import from here.
  */

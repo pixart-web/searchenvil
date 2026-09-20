@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import type { EffortLevel, IssueCategory, IssueSeverity, Prisma } from "@searchenvil/database";
+import type { EffortLevel, IssueCategory, IssueSeverity, Prisma } from "@searchanvil/database";
 import { PrismaService } from "../common/prisma/prisma.service";
 import { ProjectsService } from "../projects/projects.service";
 

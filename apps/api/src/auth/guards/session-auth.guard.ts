@@ -10,8 +10,8 @@ import type { Request, Response } from "express";
 import { AuthService } from "../auth.service";
 import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
 
-const SESSION_COOKIE_NAME = process.env.AUTH_SESSION_COOKIE_NAME ?? "searchenvil_session";
-const CSRF_COOKIE_NAME = "searchenvil_csrf";
+const SESSION_COOKIE_NAME = process.env.AUTH_SESSION_COOKIE_NAME ?? "searchanvil_session";
+const CSRF_COOKIE_NAME = "searchanvil_csrf";
 const CSRF_HEADER_NAME = "x-csrf-token";
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 

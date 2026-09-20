@@ -1,5 +1,5 @@
-import type { AuditRuleDefinition } from "@searchenvil/audit-engine";
-import type { PrismaClient } from "@searchenvil/database";
+import type { AuditRuleDefinition } from "@searchanvil/audit-engine";
+import type { PrismaClient } from "@searchanvil/database";
 
 /**
  * Upserts every rule in the registry into the AuditRule table (keyed by

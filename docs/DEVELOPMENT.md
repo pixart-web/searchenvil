@@ -16,7 +16,7 @@ pnpm install
 docker-compose up -d          # Postgres on :5433, Redis on :6380 (see note below)
 pnpm db:generate
 pnpm db:migrate                # applies migrations, prompts for a name on schema changes
-pnpm db:seed                   # creates demo@searchenvil.com / ChangeMe123!
+pnpm db:seed                   # creates demo@searchanvil.com / ChangeMe123!
 ```
 
 > **Non-default ports**: `docker-compose.yml` exposes Postgres on host port `5433` and Redis on
@@ -27,9 +27,9 @@ pnpm db:seed                   # creates demo@searchenvil.com / ChangeMe123!
 ## Running the apps
 
 ```bash
-pnpm --filter @searchenvil/api run dev       # NestJS API on :4000 (reload on change)
-pnpm --filter @searchenvil/worker run dev    # BullMQ worker (reload on change)
-pnpm --filter @searchenvil/web run dev       # Next.js on :3000
+pnpm --filter @searchanvil/api run dev       # NestJS API on :4000 (reload on change)
+pnpm --filter @searchanvil/worker run dev    # BullMQ worker (reload on change)
+pnpm --filter @searchanvil/web run dev       # Next.js on :3000
 ```
 
 Or run everything Turborepo knows about concurrently: `pnpm dev`.
@@ -57,9 +57,9 @@ curl http://localhost:4000/ready    # {"status":"ok","checks":{"database":"ok","
 ## Adding a package
 
 Follow the existing shape in `packages/*`: a `package.json` with `build`/`dev`/`lint`/`typecheck`/
-`test`/`clean` scripts, a `tsconfig.json` extending `@searchenvil/tsconfig/node-library.json` (or
+`test`/`clean` scripts, a `tsconfig.json` extending `@searchanvil/tsconfig/node-library.json` (or
 `nextjs.json`/`nestjs.json` for apps), and a `.eslintrc.json` extending
-`@searchenvil/eslint-config`. Add it to `pnpm-workspace.yaml` implicitly by placing it under
+`@searchanvil/eslint-config`. Add it to `pnpm-workspace.yaml` implicitly by placing it under
 `apps/` or `packages/` — no further registration needed.
 
 ## Code quality gates

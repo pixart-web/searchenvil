@@ -10,7 +10,7 @@ import {
   SearchHealthGauge,
   Spinner,
   StatusState,
-} from "@searchenvil/ui";
+} from "@searchanvil/ui";
 import { apiFetch } from "@/lib/api-client";
 import { resolveProjectOrg } from "@/lib/resolve-project-org";
 import { formatCategoryLabel, formatRelativeTime } from "@/lib/format";

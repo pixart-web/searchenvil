@@ -5,10 +5,10 @@ import {
   type AuditJobData,
   type CrawlJobData,
   type PerformanceJobData,
-} from "@searchenvil/queue";
-import { runCrawl } from "@searchenvil/crawler";
-import { createPlaywrightCollector } from "@searchenvil/performance";
-import { prisma } from "@searchenvil/database";
+} from "@searchanvil/queue";
+import { runCrawl } from "@searchanvil/crawler";
+import { createPlaywrightCollector } from "@searchanvil/performance";
+import { prisma } from "@searchanvil/database";
 import { logger } from "./logger";
 import { processCrawlJob } from "./crawl/process-crawl-job";
 import { processAuditJob } from "./audit/process-audit-job";

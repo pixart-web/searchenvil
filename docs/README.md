@@ -1,8 +1,8 @@
-# SearchEnvil
+# SearchAnvil
 
 **Forge Better Search Performance.**
 
-SearchEnvil is a multi-tenant SaaS platform for website intelligence and technical SEO
+SearchAnvil is a multi-tenant SaaS platform for website intelligence and technical SEO
 auditing. It answers five questions for a website owner: How healthy is my website? What is
 wrong? What should I fix first? Which pages are affected? Did the website improve since the
 previous audit?
@@ -44,7 +44,7 @@ packages/
   database/       Prisma schema + generated client, shared by api/worker
   queue/          Typed BullMQ queue/job contracts shared by api/worker
   shared/         Framework-agnostic types and utilities (URL normalization, RBAC)
-  ui/             SearchEnvil design-system components (Next.js/React)
+  ui/             SearchAnvil design-system components (Next.js/React)
   eslint-config/  Shared ESLint flat-style configs
   tsconfig/       Shared TypeScript base configs
 docs/            This documentation set, plus docs/progress/PHASE-XX.md per build phase
@@ -53,6 +53,6 @@ infrastructure/  Deployment-adjacent config (reverse proxy notes, etc.) — prep
 
 ## Status
 
-SearchEnvil is under active build-out, following the phase plan recorded in
+SearchAnvil is under active build-out, following the phase plan recorded in
 `docs/progress/`. See [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) for current
 Release Candidate status.

@@ -1,5 +1,5 @@
 {
-  "extends": "@searchenvil/tsconfig/nestjs.json",
+  "extends": "@searchanvil/tsconfig/nestjs.json",
   "compilerOptions": { "rootDir": "src", "outDir": "dist", "baseUrl": "./" },
   "include": ["src"]
 }

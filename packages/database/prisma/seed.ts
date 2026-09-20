@@ -11,10 +11,10 @@ function hashPassword(password: string): string {
 
 async function main(): Promise<void> {
   const user = await prisma.user.upsert({
-    where: { email: "demo@searchenvil.com" },
+    where: { email: "demo@searchanvil.com" },
     update: {},
     create: {
-      email: "demo@searchenvil.com",
+      email: "demo@searchanvil.com",
       name: "Demo User",
       passwordHash: hashPassword("ChangeMe123!"),
       emailVerifiedAt: new Date(),
@@ -57,7 +57,7 @@ async function main(): Promise<void> {
   });
 
   // eslint-disable-next-line no-console
-  console.warn("Seed complete: demo@searchenvil.com / ChangeMe123!");
+  console.warn("Seed complete: demo@searchanvil.com / ChangeMe123!");
 }
 
 main()

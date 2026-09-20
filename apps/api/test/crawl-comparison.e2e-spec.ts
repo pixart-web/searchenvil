@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { INestApplication } from "@nestjs/common";
 import request from "supertest";
-import { prisma } from "@searchenvil/database";
+import { prisma } from "@searchanvil/database";
 import { createTestApp, extractCookieHeader, extractCookieValue, uniqueEmail } from "./test-app";
 
 interface Session {
@@ -24,7 +24,7 @@ async function registerAndGetSession(server: unknown, label: string): Promise<Se
   const orgs = await request(server as never).get("/api/v1/organizations").set("Cookie", cookieHeader);
   return {
     cookieHeader,
-    csrfToken: extractCookieValue(cookies, "searchenvil_csrf") ?? "",
+    csrfToken: extractCookieValue(cookies, "searchanvil_csrf") ?? "",
     organizationId: orgs.body[0].id,
   };
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, CardContent, FieldError, Input, Label, Spinner } from "@searchenvil/ui";
+import { Button, Card, CardContent, FieldError, Input, Label, Spinner } from "@searchanvil/ui";
 import { apiFetch, ApiError } from "@/lib/api-client";
 import { deriveDefaultName } from "@/lib/derive-project-name";
 import type { CurrentUser, Organization, Project, Site } from "@/lib/types";
@@ -96,7 +96,7 @@ export default function OnboardingPage(): React.ReactElement | null {
         <Card className="w-full max-w-md">
           <CardContent className="space-y-4 py-8 text-center">
             <p className="font-mono text-xs uppercase tracking-[0.3em] text-ember-400">
-              SearchEnvil
+              SearchAnvil
             </p>
             <h1 className="text-xl font-semibold text-steel-100">{createdSite.project.name} is ready.</h1>
             <p className="text-sm text-steel-400">
@@ -116,8 +116,8 @@ export default function OnboardingPage(): React.ReactElement | null {
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-ember-400">SearchEnvil</p>
-        <h1 className="mt-1 text-2xl font-semibold text-steel-100">Welcome to SearchEnvil.</h1>
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-ember-400">SearchAnvil</p>
+        <h1 className="mt-1 text-2xl font-semibold text-steel-100">Welcome to SearchAnvil.</h1>
         <p className="mt-2 text-sm text-steel-400">
           Let&apos;s find out what&apos;s holding your website back.
         </p>

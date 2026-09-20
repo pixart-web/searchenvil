@@ -1,5 +1,5 @@
 import { IsIn } from "class-validator";
-import type { OrganizationRole } from "@searchenvil/shared";
+import type { OrganizationRole } from "@searchanvil/shared";
 
 const ROLES: OrganizationRole[] = ["OWNER", "ADMIN", "MEMBER"];
 

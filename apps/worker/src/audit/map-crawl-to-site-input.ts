@@ -1,8 +1,8 @@
-import type { HeadingInput, SiteInput } from "@searchenvil/audit-engine";
-import type { PrismaClient } from "@searchenvil/database";
+import type { HeadingInput, SiteInput } from "@searchanvil/audit-engine";
+import type { PrismaClient } from "@searchanvil/database";
 
 /**
- * Maps persisted Crawl/CrawlPage rows into @searchenvil/audit-engine's own
+ * Maps persisted Crawl/CrawlPage rows into @searchanvil/audit-engine's own
  * SiteInput shape — the one place that bridges "how facts are stored" and
  * "what the audit engine needs to know." Keeps the audit-engine package
  * itself decoupled from Prisma (see docs/ARCHITECTURE.md).

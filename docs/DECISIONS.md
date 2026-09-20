@@ -34,7 +34,7 @@ declared inputs. `pnpm build` at the repo root was intermittently failing `apps/
 build` with an obscure prerendering error (`<Html> should not be imported outside of
 pages/_document`) — the actual cause was `NODE_ENV=development` from a locally sourced `.env`
 leaking into the build process and causing a React dev/prod module mismatch, only reproducible
-when running through Turbo (a direct `pnpm --filter @searchenvil/web run build` was unaffected).
+when running through Turbo (a direct `pnpm --filter @searchanvil/web run build` was unaffected).
 
 **Decision:** `apps/web`'s `build` script pins `NODE_ENV=production next build` explicitly rather
 than trusting the ambient shell environment. `turbo.json`'s `test`/`test:e2e` tasks declare
@@ -54,7 +54,7 @@ fixing it, and rerunning the full pipeline clean multiple times in a row.
 
 **Decision:** Opaque random session tokens, stored server-side as a SHA-256 hash
 (`Session.tokenHash`) with an expiry, delivered via an `httpOnly` cookie. CSRF is handled via a
-double-submit cookie (`searchenvil_csrf`, non-httpOnly, echoed in an `x-csrf-token` header on
+double-submit cookie (`searchanvil_csrf`, non-httpOnly, echoed in an `x-csrf-token` header on
 mutating requests). See `docs/SECURITY.md`.
 
 **Consequences:** Every request that needs the current user costs a DB lookup (acceptable at this

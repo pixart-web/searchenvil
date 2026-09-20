@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { AppShell, PROJECT_NAV_ITEMS, ProjectSwitcher } from "@searchenvil/ui";
+import { AppShell, PROJECT_NAV_ITEMS, ProjectSwitcher } from "@searchanvil/ui";
 import { NavLink } from "@/components/nav-link";
 import { apiFetch } from "@/lib/api-client";
 import { resolveProjectOrg } from "@/lib/resolve-project-org";

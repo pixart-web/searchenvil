@@ -15,7 +15,7 @@ phase by phase before that.
   production). This means a session can be revoked server-side at any time (logout deletes the
   row) — a capability JWTs don't give you without extra infrastructure.
 - **CSRF**: double-submit cookie pattern. On login/register, a second **non-httpOnly**
-  `searchenvil_csrf` cookie is set alongside the session cookie. Every mutating request
+  `searchanvil_csrf` cookie is set alongside the session cookie. Every mutating request
   (POST/PUT/PATCH/DELETE) on an authenticated route must echo that value back in an
   `x-csrf-token` header; `SessionAuthGuard` rejects the request otherwise. A cross-site form
   submission can set cookies but can't read them to populate the header, and can't set custom
@@ -54,8 +54,8 @@ traces, file paths, or internal error details cross the API boundary.
 
 | Cookie | httpOnly | Secure | SameSite | Purpose |
 |---|---|---|---|---|
-| `searchenvil_session` | yes | prod only | Lax | session token (opaque, hashed server-side) |
-| `searchenvil_csrf` | no | prod only | Lax | double-submit CSRF token |
+| `searchanvil_session` | yes | prod only | Lax | session token (opaque, hashed server-side) |
+| `searchanvil_csrf` | no | prod only | Lax | double-submit CSRF token |
 
 ## Password reset
 

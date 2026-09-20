@@ -1,5 +1,5 @@
 {
-  "name": "@searchenvil/database",
+  "name": "@searchanvil/database",
   "version": "0.1.0",
   "private": true,
   "main": "dist/index.js",
@@ -20,14 +20,14 @@
     "@prisma/client": "^6.2.1"
   },
   "devDependencies": {
-    "@searchenvil/tsconfig": "workspace:*",
+    "@searchanvil/tsconfig": "workspace:*",
     "prisma": "^6.2.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8",
     "@types/node": "^22.10.5",
     "eslint": "^8.57.1",
-    "@searchenvil/eslint-config": "workspace:*"
+    "@searchanvil/eslint-config": "workspace:*"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -1,8 +1,8 @@
 # Crawler
 
-`@searchenvil/crawler` collects **facts** from a website. It never makes an SEO judgment — see
+`@searchanvil/crawler` collects **facts** from a website. It never makes an SEO judgment — see
 `docs/ARCHITECTURE.md` ("Crawler ≠ Audit Engine"). If you're tempted to add "and this is bad
-because..." logic here, it belongs in `@searchenvil/audit-engine` instead.
+because..." logic here, it belongs in `@searchanvil/audit-engine` instead.
 
 ## Pipeline
 

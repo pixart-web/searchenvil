@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import type { Project } from "@searchenvil/database";
+import type { Project } from "@searchanvil/database";
 import { PrismaService } from "../common/prisma/prisma.service";
 
 @Injectable()

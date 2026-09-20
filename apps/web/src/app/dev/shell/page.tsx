@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@searchenvil/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@searchanvil/ui";
 
 export default function ShellDemoPage(): React.ReactElement {
   if (process.env.NODE_ENV === "production") {

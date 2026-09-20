@@ -36,7 +36,7 @@ Postgres/Redis. Starting a crawl via the API during an e2e test run enqueues a *
 job; if a worker happens to be running in the background, it will pick that job up and crawl the
 test's (usually nonexistent) fixture domain concurrently with the test's own assertions,
 producing extra `CrawlPage` rows and flaky-looking failures that have nothing to do with the code
-under test. Stop any local `apps/worker` process before running `pnpm --filter @searchenvil/api
+under test. Stop any local `apps/worker` process before running `pnpm --filter @searchanvil/api
 run test:e2e` (or `pnpm test:e2e` at the root). This doesn't affect CI, where no worker process
 is started.
 
@@ -47,7 +47,7 @@ is started.
 | `packages/crawler/src/fixtures/fixture-server.ts` | Deterministic HTTP responses for crawler tests |
 | Cases covered by name in `crawler.spec.ts`, `parser.spec.ts`, `robots.spec.ts`, `sitemap.spec.ts` | Missing title, duplicate signals, `noindex`, broken links, redirects, missing `alt`, malformed JSON-LD, 404/500 |
 
-Additional deterministic HTML/HTTP fixtures for `@searchenvil/audit-engine` rule tests land in
+Additional deterministic HTML/HTTP fixtures for `@searchanvil/audit-engine` rule tests land in
 Phase 07.
 
 ## Running tests

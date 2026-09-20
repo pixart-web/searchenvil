@@ -1,6 +1,6 @@
 # Audit Engine
 
-`@searchenvil/audit-engine` interprets facts into findings. It never fetches anything, never
+`@searchanvil/audit-engine` interprets facts into findings. It never fetches anything, never
 touches the network, and never talks to Postgres directly — see `docs/ARCHITECTURE.md` ("Crawler
 ≠ Audit Engine"). If a rule needs to know something not already in `SiteInput`, that's a signal
 the crawler or the worker's mapping layer needs to grow, not that the audit engine should reach

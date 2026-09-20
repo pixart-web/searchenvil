@@ -23,7 +23,7 @@ async function registerAndGetSession(server: unknown, label: string): Promise<Se
   const orgs = await request(server as never).get("/api/v1/organizations").set("Cookie", cookieHeader);
   return {
     cookieHeader,
-    csrfToken: extractCookieValue(cookies, "searchenvil_csrf") ?? "",
+    csrfToken: extractCookieValue(cookies, "searchanvil_csrf") ?? "",
     organizationId: orgs.body[0].id,
   };
 }

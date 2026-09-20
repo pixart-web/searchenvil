@@ -1,1 +1,1 @@
-{ "extends": ["@searchenvil/eslint-config"] }
+{ "extends": ["@searchanvil/eslint-config"] }

@@ -1,5 +1,5 @@
 import { chromium, type Browser } from "playwright-core";
-import { isValidHttpUrl } from "@searchenvil/shared";
+import { isValidHttpUrl } from "@searchanvil/shared";
 import type { CollectOptions, MetricsCollector, PerformanceMetrics } from "./types";
 
 /**
@@ -29,7 +29,7 @@ export function createPlaywrightCollector(executablePath: string): MetricsCollec
       // Collect LCP/CLS via PerformanceObserver before navigating, so we
       // don't miss entries that fire during the initial paint.
       await page.addInitScript(() => {
-        (window as unknown as { __searchenvilMetrics: { lcp: number; cls: number } }).__searchenvilMetrics = {
+        (window as unknown as { __searchanvilMetrics: { lcp: number; cls: number } }).__searchanvilMetrics = {
           lcp: 0,
           cls: 0,
         };
@@ -38,7 +38,7 @@ export function createPlaywrightCollector(executablePath: string): MetricsCollec
             const entries = list.getEntries();
             const last = entries[entries.length - 1];
             if (last) {
-              (window as unknown as { __searchenvilMetrics: { lcp: number } }).__searchenvilMetrics.lcp =
+              (window as unknown as { __searchanvilMetrics: { lcp: number } }).__searchanvilMetrics.lcp =
                 last.startTime;
             }
           }).observe({ type: "largest-contentful-paint", buffered: true });
@@ -46,7 +46,7 @@ export function createPlaywrightCollector(executablePath: string): MetricsCollec
           new PerformanceObserver((list) => {
             for (const entry of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) {
               if (!entry.hadRecentInput) {
-                (window as unknown as { __searchenvilMetrics: { cls: number } }).__searchenvilMetrics.cls +=
+                (window as unknown as { __searchanvilMetrics: { cls: number } }).__searchanvilMetrics.cls +=
                   entry.value;
               }
             }
@@ -62,8 +62,8 @@ export function createPlaywrightCollector(executablePath: string): MetricsCollec
 
       const result = await page.evaluate(() => {
         const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
-        const custom = (window as unknown as { __searchenvilMetrics: { lcp: number; cls: number } })
-          .__searchenvilMetrics;
+        const custom = (window as unknown as { __searchanvilMetrics: { lcp: number; cls: number } })
+          .__searchanvilMetrics;
         return {
           ttfbMs: nav ? Math.round(nav.responseStart) : undefined,
           domContentLoadedMs: nav ? Math.round(nav.domContentLoadedEventEnd) : undefined,

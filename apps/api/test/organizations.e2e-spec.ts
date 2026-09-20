@@ -30,7 +30,7 @@ describe("Organizations — tenant isolation (e2e)", () => {
       .set("Cookie", extractCookieHeader(aliceCookies));
     alice = {
       cookieHeader: extractCookieHeader(aliceCookies),
-      csrfToken: extractCookieValue(aliceCookies, "searchenvil_csrf") ?? "",
+      csrfToken: extractCookieValue(aliceCookies, "searchanvil_csrf") ?? "",
       organizationId: aliceOrgs.body[0].id,
     };
 
@@ -46,7 +46,7 @@ describe("Organizations — tenant isolation (e2e)", () => {
       .set("Cookie", extractCookieHeader(bobCookies));
     bob = {
       cookieHeader: extractCookieHeader(bobCookies),
-      csrfToken: extractCookieValue(bobCookies, "searchenvil_csrf") ?? "",
+      csrfToken: extractCookieValue(bobCookies, "searchanvil_csrf") ?? "",
       organizationId: bobOrgs.body[0].id,
     };
   });

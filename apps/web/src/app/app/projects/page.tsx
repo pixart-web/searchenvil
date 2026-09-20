@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Spinner, StatusState } from "@searchenvil/ui";
+import { Spinner, StatusState } from "@searchanvil/ui";
 import { apiFetch } from "@/lib/api-client";
 import type { Organization, Project } from "@/lib/types";
 

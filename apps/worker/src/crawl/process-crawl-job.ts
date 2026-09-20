@@ -1,6 +1,6 @@
-import type { CrawlConfig, CrawlResult, RunCrawlOptions } from "@searchenvil/crawler";
-import type { PrismaClient } from "@searchenvil/database";
-import { DEFAULT_CRAWL_CONFIG } from "@searchenvil/crawler";
+import type { CrawlConfig, CrawlResult, RunCrawlOptions } from "@searchanvil/crawler";
+import type { PrismaClient } from "@searchanvil/database";
+import { DEFAULT_CRAWL_CONFIG } from "@searchanvil/crawler";
 import { finalizeCrawlLinks, persistCrawlPage } from "./persist-crawl-result";
 import { logger } from "../logger";
 
@@ -18,7 +18,7 @@ export interface ProcessCrawlJobDeps {
 /**
  * Orchestrates one crawl end to end: loads the Crawl+Site, transitions
  * status, runs the actual crawl (via the injected `runCrawl` — production
- * wiring uses the real @searchenvil/crawler; tests inject a fixture), persists
+ * wiring uses the real @searchanvil/crawler; tests inject a fixture), persists
  * pages incrementally as they complete, resolves links once everything is
  * in, and leaves the Crawl in a terminal state (COMPLETED/FAILED/CANCELLED)
  * with startedAt/finishedAt/errorMessage set appropriately.

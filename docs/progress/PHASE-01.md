@@ -13,12 +13,12 @@
   (Project, Site, Crawl, CrawlPage, CrawlLink, CrawlImage, CrawlStructuredDataBlock, AuditRule,
   AuditRun, AuditIssue, AuditOccurrence, AuditScore, Report, UsageRecord). First migration
   (`20260919175610_init`) generated and applied.
-- `@searchenvil/database`: Prisma client singleton (`prisma`), seed script creating a demo
+- `@searchanvil/database`: Prisma client singleton (`prisma`), seed script creating a demo
   org/user/project/site.
-- `@searchenvil/queue`: typed BullMQ queue names/job payloads (`CRAWL`, `AUDIT`, `PERFORMANCE`,
+- `@searchanvil/queue`: typed BullMQ queue names/job payloads (`CRAWL`, `AUDIT`, `PERFORMANCE`,
   `REPORT`), shared Redis connection, `createTypedQueue`/`createTypedWorker` factories, sane
   default job options (retries, backoff, cleanup).
-- `@searchenvil/shared`: role/permission model (`OrganizationRole`, `can()`), URL normalization
+- `@searchanvil/shared`: role/permission model (`OrganizationRole`, `can()`), URL normalization
   (`normalizeUrl`, `isSameOrigin`, `isValidHttpUrl`) that the crawler will build on in Phase 05,
   common API/pagination types.
 - `apps/api` (NestJS): global validation pipe, helmet, CORS, request-id middleware, global
@@ -28,7 +28,7 @@
 - `apps/worker`: BullMQ worker skeleton consuming the `crawl` queue, structured JSON logging,
   graceful shutdown on SIGTERM/SIGINT. Processor is a placeholder (proves connectivity); replaced
   by the real crawl pipeline in Phase 05/06.
-- `apps/web` (Next.js 15 / React 19): app shell, Tailwind configured with the SearchEnvil token
+- `apps/web` (Next.js 15 / React 19): app shell, Tailwind configured with the SearchAnvil token
   set from the brand spec (forge/steel/ember/violet/success/warning/danger), dark-first
   `<html class="dark">`, placeholder landing page.
 - `docker-compose.yml`: Postgres 16 + Redis 7 for local dev (non-default host ports 5433/6380 —
@@ -68,7 +68,7 @@
 
 ```
 pnpm install        → 897 packages resolved, installed cleanly
-docker-compose up -d → searchenvil-postgres, searchenvil-redis healthy
+docker-compose up -d → searchanvil-postgres, searchanvil-redis healthy
 pnpm db:generate     → Prisma Client generated
 prisma migrate dev --name init → applied 20260919175610_init
 pnpm build           → 9/9 tasks succeeded (all apps + packages)
@@ -109,11 +109,11 @@ ADR-003 (local dev ports), ADR-004 (queue job payloads carry IDs only).
   `@nestjs/platform-express`) as explicit dependencies rather than relying on transitive
   resolution.
 - `apps/api`: `ioredis` was used directly in `health.controller.ts` but only available
-  transitively via `@searchenvil/queue`; added as a direct dependency (workspace packages should
+  transitively via `@searchanvil/queue`; added as a direct dependency (workspace packages should
   not rely on another package's transitive deps being hoisted).
 - Every library package except `apps/web` was missing an `.eslintrc.json`, causing ESLint to fail
   with "couldn't find a configuration file" the moment more than one package had lint-able code.
-  Added a consistent `.eslintrc.json` per package extending `@searchenvil/eslint-config`.
+  Added a consistent `.eslintrc.json` per package extending `@searchanvil/eslint-config`.
 - Packages without implementation yet failed `vitest run` with exit code 1 on "no test files
   found" (the correct behavior, but not what we want blocking CI before those phases start).
   Changed their `test` script to `vitest run --passWithNoTests`; packages with real logic

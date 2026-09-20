@@ -12,18 +12,18 @@
   exists, so a link to a page crawled later in the run still resolves its `targetPageId`
   correctly.
 - **Live progress**: `Crawl.pagesCrawled` increments as each page is persisted (via
-  `@searchenvil/crawler`'s new `onPageCrawled` hook), not just once at the end — a crawl in
+  `@searchanvil/crawler`'s new `onPageCrawled` hook), not just once at the end — a crawl in
   progress is genuinely observable, not a black box until it finishes.
 - **Status lifecycle** (`apps/worker/src/crawl/process-crawl-job.ts`): `PENDING → DISCOVERING →
   CRAWLING → COMPLETED`, or `FAILED` (with `errorMessage` captured) / `CANCELLED`, with
   `startedAt`/`finishedAt` set at the right points.
 - **Cancellation**: the worker polls the crawl's DB status every ~2s (configurable) and aborts an
-  `AbortController` if it observes `CANCELLED` — wired through `@searchenvil/crawler`'s new
+  `AbortController` if it observes `CANCELLED` — wired through `@searchanvil/crawler`'s new
   `signal` option on `runCrawl`, which stops the `ConcurrencyPool` from starting new fetches
   (in-flight ones finish). A crawl cancelled before the worker even picks up the job is a no-op
   (checked at the very start of `processCrawlJob`).
 - **Dependency-injected crawl execution**: `processCrawlJob` takes `runCrawl` as a dependency
-  (production wiring uses the real `@searchenvil/crawler`; tests inject a fake one) — this is
+  (production wiring uses the real `@searchanvil/crawler`; tests inject a fake one) — this is
   what makes the full status/persistence/cancellation lifecycle testable deterministically against
   real Postgres without any network/SSRF concerns.
 - **Crawls API** (`apps/api/src/crawls`): start (enqueues a real BullMQ job via a new
@@ -79,7 +79,7 @@ GET .../crawls/:id/pages → title: "Example Domain", h1: "Example Domain",
 ```
 
 This is the strongest form of the gate: not just that test fixtures round-trip correctly, but
-that the real pipeline (API → BullMQ → worker → `@searchenvil/crawler` → SSRF-safe DNS → Postgres
+that the real pipeline (API → BullMQ → worker → `@searchanvil/crawler` → SSRF-safe DNS → Postgres
 → API read-back) works against the actual internet.
 
 ## Architecture decisions

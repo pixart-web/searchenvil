@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["@searchenvil/ui", "@searchenvil/shared"],
+  transpilePackages: ["@searchanvil/ui", "@searchanvil/shared"],
 };
 
 export default nextConfig;

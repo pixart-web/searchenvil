@@ -1,5 +1,5 @@
 import { Agent, request } from "undici";
-import { isValidHttpUrl } from "@searchenvil/shared";
+import { isValidHttpUrl } from "@searchanvil/shared";
 import { createSafeLookup, isBlockedAddress, SsrfBlockedError } from "./ssrf";
 import type { FetchResult } from "./types";
 

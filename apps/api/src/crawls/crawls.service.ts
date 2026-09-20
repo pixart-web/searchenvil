@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { Queue } from "bullmq";
-import type { CrawlJobData } from "@searchenvil/queue";
-import { DEFAULT_CRAWL_CONFIG } from "@searchenvil/crawler";
+import type { CrawlJobData } from "@searchanvil/queue";
+import { DEFAULT_CRAWL_CONFIG } from "@searchanvil/crawler";
 import { PrismaService } from "../common/prisma/prisma.service";
 import { SitesService } from "../sites/sites.service";
 import { CRAWL_QUEUE } from "../common/queue/queue.module";

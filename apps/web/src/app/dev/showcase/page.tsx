@@ -9,7 +9,7 @@ import {
   Skeleton,
   Spinner,
   StatusState,
-} from "@searchenvil/ui";
+} from "@searchanvil/ui";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }): React.ReactElement {
   return (
@@ -28,10 +28,10 @@ export default function ComponentShowcasePage(): React.ReactElement {
   return (
     <div className="mx-auto max-w-4xl space-y-10 p-8">
       <div>
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-ember-400">SearchEnvil</p>
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-ember-400">SearchAnvil</p>
         <h1 className="text-2xl font-semibold text-steel-100">Component showcase</h1>
         <p className="mt-1 text-sm text-steel-400">
-          Dev-only reference for the design system primitives in @searchenvil/ui. Not linked from
+          Dev-only reference for the design system primitives in @searchanvil/ui. Not linked from
           product navigation.
         </p>
       </div>

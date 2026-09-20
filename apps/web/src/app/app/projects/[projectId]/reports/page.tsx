@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { Badge, Spinner, StatusState } from "@searchenvil/ui";
+import { Badge, Spinner, StatusState } from "@searchanvil/ui";
 import { apiFetch } from "@/lib/api-client";
 import { resolveProjectOrg } from "@/lib/resolve-project-org";
 import { formatRelativeTime } from "@/lib/format";

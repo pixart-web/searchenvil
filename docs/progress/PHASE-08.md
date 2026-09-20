@@ -22,7 +22,7 @@
   the same penalty magnitude the ranking uses, so the badge and the order never disagree.
 - **Worker integration**: `process-audit-job.ts` now computes real scores/priorities and persists
   them — `AuditScore` (one per `AuditRun`, upserted) and `AuditIssue.severity`/`impact`/
-  `priorityScore` all come from `@searchenvil/audit-engine`, replacing Phase 07's placeholder
+  `priorityScore` all come from `@searchanvil/audit-engine`, replacing Phase 07's placeholder
   (`placeholder-priority.ts`, deleted this phase).
 - **API**: three new read endpoints — `GET .../crawls/:crawlId/score`, `.../issues`,
   `.../issues/:issueId` — the first surface for Forge Priorities/Search Health, ahead of the

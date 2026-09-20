@@ -1,5 +1,5 @@
 {
-  "name": "@searchenvil/audit-engine",
+  "name": "@searchanvil/audit-engine",
   "version": "0.1.0",
   "private": true,
   "main": "dist/index.js",
@@ -13,14 +13,14 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@searchenvil/shared": "workspace:*"
+    "@searchanvil/shared": "workspace:*"
   },
   "devDependencies": {
-    "@searchenvil/tsconfig": "workspace:*",
+    "@searchanvil/tsconfig": "workspace:*",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8",
     "@types/node": "^22.10.5",
     "eslint": "^8.57.1",
-    "@searchenvil/eslint-config": "workspace:*"
+    "@searchanvil/eslint-config": "workspace:*"
   }
 }

@@ -103,7 +103,7 @@ the schema now matches what the product actually does.
 
 ## Security considerations
 
-No new attack surface — Dockerfiles run as a non-root user (`searchenvil`, uid/gid 1001) in every
+No new attack surface — Dockerfiles run as a non-root user (`searchanvil`, uid/gid 1001) in every
 image, and `.dockerignore` excludes `.env`/`.git`/`node_modules` from the build context so no
 local secrets or history can accidentally end up baked into an image layer.
 

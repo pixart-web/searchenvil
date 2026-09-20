@@ -1,10 +1,10 @@
 # Product
 
-**SearchEnvil — Forge Better Search Performance.**
+**SearchAnvil — Forge Better Search Performance.**
 
 ## The five questions
 
-SearchEnvil exists to answer, for a given website:
+SearchAnvil exists to answer, for a given website:
 
 1. How healthy is my website?
 2. What is wrong?
@@ -12,7 +12,7 @@ SearchEnvil exists to answer, for a given website:
 4. Which pages are affected?
 5. Did the website improve since the previous audit?
 
-Every feature in the initial release should serve one of these. SearchEnvil is deliberately
+Every feature in the initial release should serve one of these. SearchAnvil is deliberately
 **not** attempting to be a SEMrush-style all-in-one marketing suite (see Out of scope below).
 
 ## The core loop
@@ -37,7 +37,7 @@ Categories: Technical, Indexability, Content, Performance, Internal Linking, Str
 
 Issues are ranked, not just listed. Each actionable issue carries severity, impact, effort,
 affected-page count, an explanation, and a recommended fix — e.g. "Broken internal links — HIGH
-IMPACT, EASY, 9 affected pages." SearchEnvil does not invent unsupported traffic or revenue
+IMPACT, EASY, 9 affected pages." SearchAnvil does not invent unsupported traffic or revenue
 claims. See [AUDIT_ENGINE.md](./AUDIT_ENGINE.md).
 
 ### Crawl Comparison

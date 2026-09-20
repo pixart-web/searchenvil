@@ -35,7 +35,7 @@ describe("Password reset (e2e)", () => {
     const server = app.getHttpServer();
     const res = await request(server)
       .post("/api/v1/auth/password-reset/request")
-      .send({ email: "definitely-not-registered@searchenvil.test" });
+      .send({ email: "definitely-not-registered@searchanvil.test" });
     expect(res.status).toBe(202);
   });
 
@@ -52,7 +52,7 @@ describe("Password reset (e2e)", () => {
       organizationName: "Reset Org",
     });
     const sessionCookie = (registerRes.headers["set-cookie"] as unknown as string[])
-      .find((c) => c.startsWith("searchenvil_session="))
+      .find((c) => c.startsWith("searchanvil_session="))
       ?.split(";")[0];
 
     await request(server).post("/api/v1/auth/password-reset/request").send({ email });

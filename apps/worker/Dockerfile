@@ -1,4 +1,4 @@
-# SearchEnvil Worker — deployment artifact only. Building this image does not deploy anything;
+# SearchAnvil Worker — deployment artifact only. Building this image does not deploy anything;
 # see docs/DEPLOYMENT.md. This build has never been run against a production target from this repo.
 #
 # The performance-sampling capability (packages/performance) needs a provisioned Chromium binary
@@ -15,20 +15,20 @@ FROM base AS pruner
 WORKDIR /app
 RUN pnpm add -g turbo
 COPY . .
-RUN turbo prune @searchenvil/worker --docker
+RUN turbo prune @searchanvil/worker --docker
 
 FROM base AS installer
 WORKDIR /app
 COPY --from=pruner /app/out/json/ .
 RUN pnpm install --frozen-lockfile
 COPY --from=pruner /app/out/full/ .
-RUN pnpm turbo run build --filter=@searchenvil/worker
+RUN pnpm turbo run build --filter=@searchanvil/worker
 
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-RUN addgroup --system --gid 1001 searchenvil && adduser --system --uid 1001 searchenvil
+RUN addgroup --system --gid 1001 searchanvil && adduser --system --uid 1001 searchanvil
 COPY --from=installer /app .
-USER searchenvil
+USER searchanvil
 WORKDIR /app/apps/worker
 CMD ["pnpm", "start"]

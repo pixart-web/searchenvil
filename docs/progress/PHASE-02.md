@@ -4,7 +4,7 @@
 
 ## Scope implemented
 
-- SearchEnvil brand tokens wired end to end: `packages/ui/src/tokens/colors.ts` (source of truth)
+- SearchAnvil brand tokens wired end to end: `packages/ui/src/tokens/colors.ts` (source of truth)
   mirrored in `apps/web/tailwind.config.ts`; dark-first `<html class="dark">`, Geist
   Sans/Mono font variables in `apps/web/src/app/globals.css`.
 - Design-system primitives in `packages/ui`: `Button` (4 variants, loading state), `Badge`
@@ -42,7 +42,7 @@
 ## Commands executed and results
 
 ```
-pnpm install  → clsx, tailwind-merge added to @searchenvil/ui
+pnpm install  → clsx, tailwind-merge added to @searchanvil/ui
 pnpm build     → 9/9 succeeded
 pnpm typecheck → 15/15 succeeded
 pnpm lint      → 15/15 succeeded
@@ -86,7 +86,7 @@ Ran `apps/web` dev server and drove it through the built-in browser:
 
 - `ProjectSwitcher` is a static trigger button; the actual dropdown listing an org's projects
   needs real data and lands in Phase 04.
-- No dark/light theme toggle — SearchEnvil is dark-first by design (section 11); a light mode is
+- No dark/light theme toggle — SearchAnvil is dark-first by design (section 11); a light mode is
   not in scope for this release.
 - Accessibility coverage here is a baseline (focus rings, ARIA roles/labels, semantic nav) — the
   full WCAG 2.2 AA pass is Phase 17.

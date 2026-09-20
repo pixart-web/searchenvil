@@ -1,4 +1,4 @@
-# SearchEnvil Web — deployment artifact only. Building this image does not deploy anything; see
+# SearchAnvil Web — deployment artifact only. Building this image does not deploy anything; see
 # docs/DEPLOYMENT.md. This build has never been run against a production target from this repo.
 
 FROM node:22-alpine AS base
@@ -8,7 +8,7 @@ FROM base AS pruner
 WORKDIR /app
 RUN pnpm add -g turbo
 COPY . .
-RUN turbo prune @searchenvil/web --docker
+RUN turbo prune @searchanvil/web --docker
 
 FROM base AS installer
 WORKDIR /app
@@ -19,14 +19,14 @@ COPY --from=pruner /app/out/full/ .
 # image-build time, not just at container-run time, or the deployed frontend will call the wrong API.
 ARG NEXT_PUBLIC_API_URL="http://localhost:4000"
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-RUN pnpm turbo run build --filter=@searchenvil/web
+RUN pnpm turbo run build --filter=@searchanvil/web
 
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-RUN addgroup --system --gid 1001 searchenvil && adduser --system --uid 1001 searchenvil
+RUN addgroup --system --gid 1001 searchanvil && adduser --system --uid 1001 searchanvil
 COPY --from=installer /app .
-USER searchenvil
+USER searchanvil
 WORKDIR /app/apps/web
 EXPOSE 3000
 CMD ["pnpm", "start"]

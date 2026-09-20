@@ -40,7 +40,7 @@ export default function HomePage(): React.ReactElement {
   return (
     <main className="min-h-screen bg-forge-950">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <span className="font-mono text-sm uppercase tracking-[0.3em] text-ember-400">SearchEnvil</span>
+        <span className="font-mono text-sm uppercase tracking-[0.3em] text-ember-400">SearchAnvil</span>
         <nav className="flex items-center gap-3">
           <Link href="/login" className="rounded px-3 py-2 text-sm font-medium text-steel-300 hover:text-steel-100">
             Sign in
@@ -57,7 +57,7 @@ export default function HomePage(): React.ReactElement {
       <section className="mx-auto flex max-w-3xl flex-col items-center gap-6 px-6 py-20 text-center sm:py-28">
         <h1 className="text-4xl font-semibold text-steel-100 sm:text-5xl">Forge Better Search Performance.</h1>
         <p className="max-w-xl text-lg text-steel-400">
-          SearchEnvil crawls your website, separates fact from opinion, and tells you exactly what
+          SearchAnvil crawls your website, separates fact from opinion, and tells you exactly what
           to fix first — not a keyword database, not a marketing suite, just a sharp technical SEO
           audit.
         </p>
@@ -111,14 +111,14 @@ export default function HomePage(): React.ReactElement {
         <h2 className="mb-4 text-2xl font-semibold text-steel-100">Not another all-in-one suite</h2>
         <p className="text-sm text-steel-400">
           No global keyword database, no backlink index, no PPC or CRM tooling, no generative AI
-          assistant guessing at your rankings. SearchEnvil does one thing — technical SEO auditing —
+          assistant guessing at your rankings. SearchAnvil does one thing — technical SEO auditing —
           and does it with facts, not narratives.
         </p>
       </section>
 
       <footer className="border-t border-forge-800 py-8">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 text-xs text-steel-500">
-          <span>© {new Date().getFullYear()} SearchEnvil</span>
+          <span>© {new Date().getFullYear()} SearchAnvil</span>
           <div className="flex gap-4">
             <Link href="/login" className="hover:text-steel-300">
               Sign in

@@ -1,6 +1,6 @@
 /**
  * Facts only — no SEO interpretation lives in this package. A rule like
- * "missing title is bad" belongs to @searchenvil/audit-engine, which
+ * "missing title is bad" belongs to @searchanvil/audit-engine, which
  * consumes these shapes. See docs/ARCHITECTURE.md ("Crawler ≠ Audit Engine").
  */
 
@@ -84,7 +84,7 @@ export const DEFAULT_CRAWL_CONFIG: Omit<CrawlConfig, "startUrl"> = {
   maxPages: 200,
   maxDepth: 5,
   concurrency: 5,
-  userAgent: "SearchEnvilBot/0.1 (+https://searchenvil.com/bot)",
+  userAgent: "SearchAnvilBot/0.1 (+https://searchanvil.com/bot)",
   requestTimeoutMs: 15_000,
   respectRobotsTxt: true,
 };

@@ -32,7 +32,7 @@ deployment needs:
 
 ## Database migrations
 
-`pnpm --filter @searchenvil/database exec prisma migrate deploy` applies committed migrations
+`pnpm --filter @searchanvil/database exec prisma migrate deploy` applies committed migrations
 (`packages/database/prisma/migrations/`) without generating new ones — the correct command for a
 non-interactive production apply, as opposed to `migrate dev` (local-only, prompts, can reset
 data). This has been run locally throughout the build against the dev database; it has never been

@@ -10,8 +10,8 @@ import { Public } from "./decorators/public.decorator";
 import { CurrentUser, type AuthenticatedUser } from "./decorators/current-user.decorator";
 import { generateCsrfToken } from "./session.util";
 
-const SESSION_COOKIE_NAME = process.env.AUTH_SESSION_COOKIE_NAME ?? "searchenvil_session";
-const CSRF_COOKIE_NAME = "searchenvil_csrf";
+const SESSION_COOKIE_NAME = process.env.AUTH_SESSION_COOKIE_NAME ?? "searchanvil_session";
+const CSRF_COOKIE_NAME = "searchanvil_csrf";
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 function setSessionCookies(res: Response, session: AuthenticatedSession): void {

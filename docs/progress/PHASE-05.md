@@ -4,7 +4,7 @@
 
 ## Scope implemented
 
-`@searchenvil/crawler` — a fact-collecting crawler, no SEO interpretation (see
+`@searchanvil/crawler` — a fact-collecting crawler, no SEO interpretation (see
 `docs/ARCHITECTURE.md`, `docs/CRAWLER.md`):
 
 - **SSRF protection** (`ssrf.ts`): resolved-IP validation (not hostname pattern matching) against
@@ -26,7 +26,7 @@
   classification), images (**missing vs. empty `alt` distinguished**), JSON-LD structured data
   (malformed JSON reported as `isValid: false`, not thrown), OpenGraph tags.
 - **Concurrency-limited BFS crawler** (`crawler.ts`, `concurrency-pool.ts`): dedup via
-  `normalizeUrl` (from Phase 01's `@searchenvil/shared`), same-origin-only traversal,
+  `normalizeUrl` (from Phase 01's `@searchanvil/shared`), same-origin-only traversal,
   robots-aware link filtering, bounded by `maxPages`/`maxDepth`/`concurrency`. Hand-rolled
   concurrency pool rather than a dependency — see ADR-007.
 
@@ -64,10 +64,10 @@
 ## Commands executed and results
 
 ```
-pnpm --filter @searchenvil/crawler run test       → 45/45 passed
-pnpm --filter @searchenvil/crawler run build       → succeeded
-pnpm --filter @searchenvil/crawler run typecheck   → succeeded
-pnpm --filter @searchenvil/crawler run lint        → succeeded
+pnpm --filter @searchanvil/crawler run test       → 45/45 passed
+pnpm --filter @searchanvil/crawler run build       → succeeded
+pnpm --filter @searchanvil/crawler run typecheck   → succeeded
+pnpm --filter @searchanvil/crawler run lint        → succeeded
 pnpm build / typecheck / lint / test (full workspace) → all green
 ```
 

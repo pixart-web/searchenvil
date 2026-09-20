@@ -1,5 +1,5 @@
 {
-  "extends": "@searchenvil/tsconfig/node-library.json",
+  "extends": "@searchanvil/tsconfig/node-library.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",

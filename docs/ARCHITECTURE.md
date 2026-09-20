@@ -2,7 +2,7 @@
 
 ## Shape
 
-SearchEnvil is a **modular monolith with separately scalable workers**, not a microservices
+SearchAnvil is a **modular monolith with separately scalable workers**, not a microservices
 system. There is one API process, one (horizontally scalable) worker process, and one web
 process, sharing a single PostgreSQL database and a single Redis instance.
 
@@ -50,8 +50,8 @@ CRAWLER  →  FACTS (CrawlPage, CrawlLink, CrawlImage, CrawlStructuredDataBlock)
                                                                                  FINDINGS
 ```
 
-`@searchenvil/crawler` collects observable facts only — e.g. `title: null`. It must never contain
-SEO judgment. `@searchenvil/audit-engine` consumes those facts and produces findings — e.g.
+`@searchanvil/crawler` collects observable facts only — e.g. `title: null`. It must never contain
+SEO judgment. `@searchanvil/audit-engine` consumes those facts and produces findings — e.g.
 "missing title → HIGH severity indexability issue". See [CRAWLER.md](./CRAWLER.md) and
 [AUDIT_ENGINE.md](./AUDIT_ENGINE.md) for the respective contracts. This separation is enforced by
 package boundaries (the crawler package has no dependency on the audit-engine package or vice
@@ -86,7 +86,7 @@ never gets to decide what a user can see. See [SECURITY.md](./SECURITY.md) and
 | Browser rendering (fallback only) | Playwright | introduced only where static fetch is insufficient |
 | Performance auditing | Lighthouse (or current equivalent) | sampled, bounded — see docs/PERFORMANCE notes in Phase 12 progress doc |
 | Styling | Tailwind CSS | `apps/web/tailwind.config.ts` |
-| UI primitives | shadcn/ui (infrastructure only) | SearchEnvil components in `packages/ui` |
+| UI primitives | shadcn/ui (infrastructure only) | SearchAnvil components in `packages/ui` |
 | CI | GitHub Actions | `.github/workflows/ci.yml` |
 | Containers | Docker / docker-compose | dev only until Phase 20 |
 

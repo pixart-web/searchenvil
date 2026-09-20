@@ -1,5 +1,5 @@
 {
-  "name": "@searchenvil/web",
+  "name": "@searchanvil/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,15 +12,15 @@
     "clean": "rm -rf .next"
   },
   "dependencies": {
-    "@searchenvil/shared": "workspace:*",
-    "@searchenvil/ui": "workspace:*",
+    "@searchanvil/shared": "workspace:*",
+    "@searchanvil/ui": "workspace:*",
     "next": "^15.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@searchenvil/eslint-config": "workspace:*",
-    "@searchenvil/tsconfig": "workspace:*",
+    "@searchanvil/eslint-config": "workspace:*",
+    "@searchanvil/tsconfig": "workspace:*",
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",

@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { Badge, Input, Spinner, StatusState } from "@searchenvil/ui";
+import { Badge, Input, Spinner, StatusState } from "@searchanvil/ui";
 import { apiFetch } from "@/lib/api-client";
 import { resolveProjectOrg } from "@/lib/resolve-project-org";
 import type { CrawlPageListItem, PagedResult } from "@/lib/types";

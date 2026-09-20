@@ -1,6 +1,6 @@
-import { normalizeUrl } from "@searchenvil/shared";
-import type { CrawlPageResult } from "@searchenvil/crawler";
-import type { PrismaClient } from "@searchenvil/database";
+import { normalizeUrl } from "@searchanvil/shared";
+import type { CrawlPageResult } from "@searchanvil/crawler";
+import type { PrismaClient } from "@searchanvil/database";
 import { computeIsIndexable } from "./indexability";
 
 /**

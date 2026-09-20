@@ -35,16 +35,16 @@ importers:
       '@nestjs/throttler':
         specifier: ^6.3.0
         version: 6.7.0(@nestjs/common@10.4.22(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.22)(reflect-metadata@0.2.2)
-      '@searchenvil/crawler':
+      '@searchanvil/crawler':
         specifier: workspace:*
         version: link:../../packages/crawler
-      '@searchenvil/database':
+      '@searchanvil/database':
         specifier: workspace:*
         version: link:../../packages/database
-      '@searchenvil/queue':
+      '@searchanvil/queue':
         specifier: workspace:*
         version: link:../../packages/queue
-      '@searchenvil/shared':
+      '@searchanvil/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       bullmq:
@@ -81,10 +81,10 @@ importers:
       '@nestjs/testing':
         specifier: ^10.4.15
         version: 10.4.22(@nestjs/common@10.4.22(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.22)(@nestjs/platform-express@10.4.22)
-      '@searchenvil/eslint-config':
+      '@searchanvil/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@searchenvil/tsconfig':
+      '@searchanvil/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@swc/core':
@@ -120,10 +120,10 @@ importers:
 
   apps/web:
     dependencies:
-      '@searchenvil/shared':
+      '@searchanvil/shared':
         specifier: workspace:*
         version: link:../../packages/shared
-      '@searchenvil/ui':
+      '@searchanvil/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       next:
@@ -136,10 +136,10 @@ importers:
         specifier: ^19.0.0
         version: 19.3.0(react@19.3.0)
     devDependencies:
-      '@searchenvil/eslint-config':
+      '@searchanvil/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@searchenvil/tsconfig':
+      '@searchanvil/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@types/node':
@@ -175,29 +175,29 @@ importers:
 
   apps/worker:
     dependencies:
-      '@searchenvil/audit-engine':
+      '@searchanvil/audit-engine':
         specifier: workspace:*
         version: link:../../packages/audit-engine
-      '@searchenvil/crawler':
+      '@searchanvil/crawler':
         specifier: workspace:*
         version: link:../../packages/crawler
-      '@searchenvil/database':
+      '@searchanvil/database':
         specifier: workspace:*
         version: link:../../packages/database
-      '@searchenvil/performance':
+      '@searchanvil/performance':
         specifier: workspace:*
         version: link:../../packages/performance
-      '@searchenvil/queue':
+      '@searchanvil/queue':
         specifier: workspace:*
         version: link:../../packages/queue
-      '@searchenvil/shared':
+      '@searchanvil/shared':
         specifier: workspace:*
         version: link:../../packages/shared
     devDependencies:
-      '@searchenvil/eslint-config':
+      '@searchanvil/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@searchenvil/tsconfig':
+      '@searchanvil/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@types/node':
@@ -218,14 +218,14 @@ importers:
 
   packages/audit-engine:
     dependencies:
-      '@searchenvil/shared':
+      '@searchanvil/shared':
         specifier: workspace:*
         version: link:../shared
     devDependencies:
-      '@searchenvil/eslint-config':
+      '@searchanvil/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@searchenvil/tsconfig':
+      '@searchanvil/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':
@@ -243,7 +243,7 @@ importers:
 
   packages/crawler:
     dependencies:
-      '@searchenvil/shared':
+      '@searchanvil/shared':
         specifier: workspace:*
         version: link:../shared
       cheerio:
@@ -253,10 +253,10 @@ importers:
         specifier: ^7.2.0
         version: 7.29.1
     devDependencies:
-      '@searchenvil/eslint-config':
+      '@searchanvil/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@searchenvil/tsconfig':
+      '@searchanvil/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':
@@ -278,10 +278,10 @@ importers:
         specifier: ^6.2.1
         version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
     devDependencies:
-      '@searchenvil/eslint-config':
+      '@searchanvil/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@searchenvil/tsconfig':
+      '@searchanvil/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':
@@ -320,17 +320,17 @@ importers:
 
   packages/performance:
     dependencies:
-      '@searchenvil/shared':
+      '@searchanvil/shared':
         specifier: workspace:*
         version: link:../shared
       playwright-core:
         specifier: ^1.49.1
         version: 1.63.0
     devDependencies:
-      '@searchenvil/eslint-config':
+      '@searchanvil/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@searchenvil/tsconfig':
+      '@searchanvil/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':
@@ -355,10 +355,10 @@ importers:
         specifier: ^5.4.2
         version: 5.11.1
     devDependencies:
-      '@searchenvil/eslint-config':
+      '@searchanvil/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@searchenvil/tsconfig':
+      '@searchanvil/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':
@@ -380,10 +380,10 @@ importers:
         specifier: ^3.24.1
         version: 3.25.76
     devDependencies:
-      '@searchenvil/eslint-config':
+      '@searchanvil/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@searchenvil/tsconfig':
+      '@searchanvil/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':
@@ -413,10 +413,10 @@ importers:
         specifier: ^2.6.0
         version: 2.6.1
     devDependencies:
-      '@searchenvil/eslint-config':
+      '@searchanvil/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@searchenvil/tsconfig':
+      '@searchanvil/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':

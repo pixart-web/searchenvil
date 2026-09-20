@@ -1,5 +1,5 @@
 import { Global, Module } from "@nestjs/common";
-import { createTypedQueue, QUEUE_NAMES, type CrawlJobData } from "@searchenvil/queue";
+import { createTypedQueue, QUEUE_NAMES, type CrawlJobData } from "@searchanvil/queue";
 import type { Queue } from "bullmq";
 
 export const CRAWL_QUEUE = "CRAWL_QUEUE";

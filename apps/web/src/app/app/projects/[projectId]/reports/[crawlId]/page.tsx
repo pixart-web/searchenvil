@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { Badge, Card, CardContent, CardHeader, CardTitle, Spinner, StatusState, type BadgeSeverity } from "@searchenvil/ui";
+import { Badge, Card, CardContent, CardHeader, CardTitle, Spinner, StatusState, type BadgeSeverity } from "@searchanvil/ui";
 import { apiFetch, apiUrl } from "@/lib/api-client";
 import { resolveProjectOrg } from "@/lib/resolve-project-org";
 import { formatCategoryLabel, formatRelativeTime } from "@/lib/format";

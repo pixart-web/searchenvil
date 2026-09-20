@@ -1,9 +1,9 @@
 # Design System
 
-SearchEnvil is dark-first and premium — graphite/forged-metal backgrounds, steel typography, a
+SearchAnvil is dark-first and premium — graphite/forged-metal backgrounds, steel typography, a
 copper/ember signature accent, and restrained violet for data/interactive moments. It should not
 read as a generic purple SaaS template, and shadcn/ui (where introduced) is infrastructure only —
-SearchEnvil's own look lives in `packages/ui`, not in unstyled primitives.
+SearchAnvil's own look lives in `packages/ui`, not in unstyled primitives.
 
 ## Tokens
 
@@ -22,7 +22,7 @@ chart code) mirrored in `apps/web/tailwind.config.ts` (`theme.extend.colors`).
 | `success` / `warning` / `danger` | `#36B978` / `#E3A72F` / `#E65353` | Semantic state only |
 
 Typography: Geist Sans for UI text, Geist Mono for technical metrics/labels (see
-`apps/web/src/app/globals.css` font variables and the `SEARCHENVIL` wordmark treatment).
+`apps/web/src/app/globals.css` font variables and the `SEARCHANVIL` wordmark treatment).
 
 Radii are restrained (`4px`/`6px`/`10px` — see `tailwind.config.ts` `borderRadius`); avoid pill
 shapes, heavy gradients, and glassmorphism.

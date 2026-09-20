@@ -1,14 +1,14 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { Badge, Spinner, StatusState } from "@searchenvil/ui";
+import { Badge, Spinner, StatusState } from "@searchanvil/ui";
 import { apiFetch } from "@/lib/api-client";
 import { resolveProjectOrg } from "@/lib/resolve-project-org";
 import type { ProjectPerformance } from "@/lib/types";
 
 type LoadState = "loading" | "ready" | "error";
 
-// Same Core Web Vitals thresholds as @searchenvil/audit-engine's performance
+// Same Core Web Vitals thresholds as @searchanvil/audit-engine's performance
 // rules (docs/PERFORMANCE.md) — kept in sync deliberately so a page never
 // looks "fine" here while an issue about it exists elsewhere.
 function lcpTone(ms: number | null): "success" | "warning" | "danger" | "neutral" {

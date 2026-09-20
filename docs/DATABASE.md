@@ -21,7 +21,7 @@ drifting from the data it claims to summarize.
 
 ## Migrations
 
-Standard Prisma workflow: `pnpm --filter @searchenvil/database exec prisma migrate dev --name
+Standard Prisma workflow: `pnpm --filter @searchanvil/database exec prisma migrate dev --name
 <description>` locally (generates + applies a migration against the local dev database);
 `prisma migrate deploy` in a real environment (applies committed migrations only, no generation,
 no prompts — see `docs/DEPLOYMENT.md`). Every migration in

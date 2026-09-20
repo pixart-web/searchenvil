@@ -6,8 +6,8 @@ import {
   prioritizeIssues,
   runAudit,
   type SiteInput,
-} from "@searchenvil/audit-engine";
-import type { PrismaClient } from "@searchenvil/database";
+} from "@searchanvil/audit-engine";
+import type { PrismaClient } from "@searchanvil/database";
 import { logger } from "../logger";
 import { mapCrawlToSiteInput } from "./map-crawl-to-site-input";
 import { syncAuditRules } from "./sync-audit-rules";
@@ -22,7 +22,7 @@ export interface ProcessAuditJobDeps {
  * Runs the audit engine against a completed crawl's persisted facts and
  * writes the results as AuditRun -> AuditIssue -> AuditOccurrence, plus a
  * versioned AuditScore. Priority/impact/Search Health all come from
- * @searchenvil/audit-engine's documented scoring methodology (see
+ * @searchanvil/audit-engine's documented scoring methodology (see
  * docs/SCORING.md) — this pipeline just persists what that package computes.
  */
 export async function processAuditJob(deps: ProcessAuditJobDeps, crawlId: string): Promise<void> {
