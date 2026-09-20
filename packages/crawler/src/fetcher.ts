@@ -37,6 +37,13 @@ export interface FetchOptions {
    * correctly, refuse to connect to).
    */
   dispatcher?: Agent;
+  /**
+   * Propagated from the crawl's AbortController (see runCrawl's
+   * RunCrawlOptions.signal) all the way down to undici's request() call, so
+   * cancellation actually aborts an in-flight request instead of only
+   * preventing new ones from starting.
+   */
+  signal?: AbortSignal;
 }
 
 /**
@@ -75,6 +82,7 @@ export async function safeFetch(url: string, options: FetchOptions): Promise<Fet
         headers: { "user-agent": options.userAgent },
         headersTimeout: options.timeoutMs,
         bodyTimeout: options.timeoutMs,
+        signal: options.signal,
       });
 
       const status = response.statusCode;

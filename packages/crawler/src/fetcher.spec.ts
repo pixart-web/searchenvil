@@ -77,6 +77,25 @@ describe("safeFetch", () => {
     expect(result.fetchError).toBeTruthy();
   });
 
+  it("aborts an in-flight request when the signal fires, instead of waiting for it to finish (SA-RC21 finding #4)", async () => {
+    fixture.routes["/slow"] = { body: "slow", delayMs: 2000 };
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 50);
+
+    const start = Date.now();
+    const result = await safeFetch(`${fixture.url}/slow`, {
+      userAgent: "test-agent",
+      timeoutMs: 5000,
+      dispatcher: testAgent,
+      signal: controller.signal,
+    });
+    const elapsed = Date.now() - start;
+
+    expect(elapsed).toBeLessThan(1500);
+    expect(result.statusCode).toBeUndefined();
+    expect(result.fetchError).toBeTruthy();
+  });
+
   it("blocks loopback addresses by default (no dispatcher override) — real SSRF protection, not just unit-tested logic", async () => {
     const result = await safeFetch(fixture.url, {
       userAgent: "test-agent",
