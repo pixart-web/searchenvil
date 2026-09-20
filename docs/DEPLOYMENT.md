@@ -28,6 +28,7 @@ deployment needs:
 | `WEB_URL` | The real frontend origin — CORS is a single explicit origin (`docs/SECURITY.md`) |
 | `NEXT_PUBLIC_API_URL` | Baked into the web build at **image build time** (see `apps/web/Dockerfile`'s `ARG`), not just container run time |
 | `CHROMIUM_EXECUTABLE_PATH` | Optional — omit to run without performance sampling; see `docs/PERFORMANCE.md` for what provisioning Chromium into the worker image/sidecar would require |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | Optional — omit `SMTP_HOST` to run with the console mail transport (no real password-reset emails sent); see `docs/OPERATIONS.md` |
 
 ## Database migrations
 

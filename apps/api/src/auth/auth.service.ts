@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { ConflictException, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { slugify } from "@searchanvil/shared";
 import type { Session, User } from "@searchanvil/database";
 import { PrismaService } from "../common/prisma/prisma.service";
@@ -18,6 +18,8 @@ export interface AuthenticatedSession {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger("AuthService");
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailer: MailerService,
@@ -100,10 +102,22 @@ export class AuthService {
       data: { userId: user.id, tokenHash: hashSessionToken(token), expiresAt },
     });
 
-    this.mailer.sendPasswordResetEmail(
-      email,
-      `${WEB_URL}/reset-password?token=${encodeURIComponent(token)}`,
-    );
+    // A transport failure (e.g. SMTP temporarily unreachable) must not change this endpoint's
+    // response — that would leak, via timing/error, information an attacker could use to distinguish
+    // "email exists but send failed" from "email doesn't exist," breaking the enumeration-safety
+    // guarantee above. The reset token itself was already created successfully; if the email
+    // genuinely never arrives, the user can just request another one.
+    try {
+      await this.mailer.sendPasswordResetEmail(
+        email,
+        `${WEB_URL}/reset-password?token=${encodeURIComponent(token)}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        "failed to send password reset email",
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
   }
 
   async confirmPasswordReset(rawToken: string, newPassword: string): Promise<void> {

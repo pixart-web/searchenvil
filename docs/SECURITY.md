@@ -110,13 +110,22 @@ path — the `Content-Disposition` filename is a hardcoded string, and the CSV b
 in-memory from already-authorized database rows, not read from disk — so there's no path-traversal
 surface here.
 
+## Outbound email (SA-RC21)
+
+Password reset emails go through a pluggable `MailTransport` (`apps/api/src/auth/mail/`):
+`ConsoleMailTransport` (the default — deterministic, no network call, used whenever `SMTP_HOST`
+isn't set) or `SmtpMailTransport` (real delivery via `nodemailer`, configured entirely through
+environment variables — see `.env.example` and `docs/OPERATIONS.md`). No credentials are
+hard-coded; a deployment that sets `SMTP_HOST` but omits `MAIL_FROM_ADDRESS` fails loudly at
+startup rather than silently dropping mail.
+
 ## What's deliberately not yet implemented (tracked, not forgotten)
 
-- Email verification enforcement (the `User.emailVerifiedAt` column exists; nothing currently
-  requires it before granting access) — revisit once outbound email is wired up. Outbound email
-  itself is an explicit dev-stub (`apps/api/src/auth/mailer.service.ts` logs instead of sending),
-  which is intentional: the master build constraints exclude provisioning real third-party service
-  credentials or sending real email as part of this build.
+- **Email verification enforcement**: the `User.emailVerifiedAt` column exists; nothing currently
+  requires it before granting access. This remains an intentional, explicit decision for this
+  release (SA-RC21 finding #5) — no part of the current application logic depends on a verified
+  email (registration grants immediate access, same as before), and mandating verification would
+  be new product scope, not a defect to fix. Revisit if a future requirement actually needs it.
 - No artificial timing-equalization between the "email found" and "email not found" branches of
   password-reset request handling — low-severity given the identical response shape and existing
   rate limiting, noted here rather than silently accepted.

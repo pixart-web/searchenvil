@@ -32,6 +32,22 @@ Not configured by this build — a managed Postgres provider's automated backup/
 recovery feature is the intended approach, not a custom backup script; nothing here assumes or
 implements one.
 
+## Outbound email
+
+Password reset is the only email this system sends. Delivery is controlled entirely by whether
+`SMTP_HOST` is set (see `.env.example`):
+
+- **Unset (default)**: `ConsoleMailTransport` logs the message and makes no network call. Correct
+  for local dev and CI — the reset flow is fully testable without a real mailbox.
+- **Set**: `SmtpMailTransport` sends via real SMTP using `SMTP_HOST`/`SMTP_PORT`/`SMTP_SECURE`/
+  `SMTP_USER`/`SMTP_PASSWORD`/`MAIL_FROM_ADDRESS`/`MAIL_FROM_NAME`. A deployment that sets
+  `SMTP_HOST` without a valid `MAIL_FROM_ADDRESS` or a numeric `SMTP_PORT` fails at startup with a
+  clear error (`apps/api/src/auth/mail/mail-config.ts`) rather than silently misbehaving.
+
+A transport failure (e.g. the SMTP host is temporarily unreachable) is logged server-side but
+never changes the password-reset-request endpoint's response — see `docs/SECURITY.md` for why
+(enumeration safety).
+
 ## Forcing a global logout
 
 There is no `AUTH_SECRET` or signing key in this system — session tokens are high-entropy random
