@@ -17,7 +17,8 @@
     "@searchanvil/shared": "workspace:*",
     "@searchanvil/crawler": "workspace:*",
     "@searchanvil/audit-engine": "workspace:*",
-    "@searchanvil/performance": "workspace:*"
+    "@searchanvil/performance": "workspace:*",
+    "playwright-core": "^1.49.1"
   },
   "devDependencies": {
     "@searchanvil/tsconfig": "workspace:*",

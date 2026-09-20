@@ -88,8 +88,8 @@ score, never a default 100 that would misrepresent "we haven't checked" as "it's
 The performance package depends on `playwright-core` (not `playwright`), deliberately — the plain
 `playwright` package auto-downloads a ~150MB Chromium binary as an npm install side effect, which
 is unacceptable for a monorepo where most packages never touch a browser. `playwright-core` ships
-no browser; a Chromium binary must be provisioned separately (e.g. `npx playwright install
-chromium`) and its path passed via `CHROMIUM_EXECUTABLE_PATH`.
+no browser; a Chromium binary must be provisioned separately and its path passed via
+`CHROMIUM_EXECUTABLE_PATH`.
 
 `apps/worker/src/main.ts` checks this env var at startup:
 
@@ -98,6 +98,22 @@ chromium`) and its path passed via `CHROMIUM_EXECUTABLE_PATH`.
   Crawl and audit processing are completely unaffected — performance is treated as an optional
   capability, not a hard dependency, so a deployment without a provisioned browser degrades
   gracefully instead of crashing.
+
+**The production worker Docker image (`apps/worker/Dockerfile`) provisions Chromium automatically
+(SA-RC21 finding #2)** — no manual setup needed. The image is built on Microsoft's official
+Playwright base image (`mcr.microsoft.com/playwright:v1.63.0-noble`, pinned to the exact
+`playwright-core` version this workspace resolves to — see `pnpm-lock.yaml`), which ships
+Chromium and every OS-level dependency it needs (fonts, shared libs) already installed at image
+build time. Nothing is downloaded when a container starts. The container's entrypoint resolves
+`CHROMIUM_EXECUTABLE_PATH` at startup via `playwright-core`'s own path-resolution API — a local
+filesystem lookup against the already-installed browser, not a network call — so it's correct
+regardless of the exact Chromium revision folder name. This was verified with a real `docker
+build` and a real running container (see `docs/DEPLOYMENT.md`'s Docker verification section),
+not just written and assumed correct.
+
+Running the worker outside this Docker image (bare `node`/`pnpm dev`, or a custom image) still
+requires provisioning Chromium manually (e.g. `npx playwright install chromium`) and setting
+`CHROMIUM_EXECUTABLE_PATH` yourself, exactly as described above.
 
 ## Live verification (Phase 12 gate)
 

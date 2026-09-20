@@ -2,6 +2,8 @@
 # docs/DEPLOYMENT.md. This build has never been run against a production target from this repo.
 
 FROM node:22-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"
 RUN corepack enable
 
 FROM base AS pruner
@@ -29,4 +31,6 @@ COPY --from=installer /app .
 USER searchanvil
 WORKDIR /app/apps/web
 EXPOSE 3000
-CMD ["pnpm", "start"]
+# Runs Next's own start binary directly — no package-manager/corepack indirection needed at
+# container runtime, only at build time.
+CMD ["node_modules/.bin/next", "start", "-p", "3000"]

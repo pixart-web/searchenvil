@@ -2,6 +2,8 @@
 # docs/DEPLOYMENT.md. This build has never been run against a production target from this repo.
 
 FROM node:22-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"
 RUN corepack enable
 
 # ---- Prune the workspace down to what @searchanvil/api actually needs ----
@@ -17,6 +19,7 @@ WORKDIR /app
 COPY --from=pruner /app/out/json/ .
 RUN pnpm install --frozen-lockfile
 COPY --from=pruner /app/out/full/ .
+RUN pnpm --filter @searchanvil/database run generate
 RUN pnpm turbo run build --filter=@searchanvil/api
 
 # ---- Minimal runtime image ----
@@ -28,4 +31,6 @@ COPY --from=installer /app .
 USER searchanvil
 WORKDIR /app/apps/api
 EXPOSE 4000
-CMD ["pnpm", "start"]
+# Runs the compiled entrypoint directly — no package-manager/corepack indirection (and therefore
+# no corepack runtime cache directory) needed at container runtime, only at build time.
+CMD ["node", "dist/main.js"]
