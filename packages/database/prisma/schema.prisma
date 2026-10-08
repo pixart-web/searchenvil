@@ -410,3 +410,22 @@ model AuditScore {
 // Reporting & usage
 // ────────────────────────────────────────────────────────────────────
 
+// ────────────────────────────────────────────────────────────────────
+// Marketing site
+// ────────────────────────────────────────────────────────────────────
+
+/// A prelaunch "notify me" signup from the public marketing site. Never
+/// used for billing or account creation — purely a mailing list of
+/// interested prospects captured ahead of general availability.
+model LaunchListSignup {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  company   String?
+  role      String?
+  source    String? // which marketing page/CTA the signup originated from
+  createdAt DateTime @default(now())
+
+  @@map("launch_list_signups")
+}
+

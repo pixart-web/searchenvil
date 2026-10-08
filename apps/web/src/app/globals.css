@@ -2,16 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-geist-sans: "Geist", system-ui, sans-serif;
-  --font-geist-mono: "Geist Mono", ui-monospace, monospace;
-}
-
 body {
   @apply bg-forge-950 text-steel-100 antialiased;
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 
 :focus-visible {
   outline: 2px solid theme("colors.ember.500");
   outline-offset: 2px;
+}
+
+/* Reduced-motion baseline: kills incidental CSS transitions/animations
+   everywhere. Scroll-linked GSAP/ScrollTrigger sequences are additionally
+   gated in JS (see src/lib/motion.ts) and swap to fully static markup —
+   this rule is the floor for anything that isn't. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Prevent any scroll-linked composition from introducing horizontal
+   overflow on narrow viewports. */
+html,
+body {
+  overflow-x: hidden;
 }
