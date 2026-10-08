@@ -7,21 +7,23 @@ const config: Config = {
     extend: {
       colors: {
         forge: {
-          950: "#090A0F",
-          900: "#101119",
-          850: "#151620",
-          800: "#1C1D29",
+          950: "#090B0E",
+          900: "#14181E",
+          850: "#191D24",
+          800: "#1D232C",
         },
         steel: {
-          500: "#74798C",
-          400: "#9296A8",
-          300: "#B4B7C4",
-          100: "#E8E9EF",
+          600: "#6B7280",
+          500: "#7D8492",
+          400: "#A8AFBA",
+          300: "#C3C8D1",
+          100: "#F5F2EC",
         },
         ember: {
-          600: "#BD6F32",
-          500: "#D98A45",
-          400: "#E9A45F",
+          700: "#9A4712", // AA-contrast variant for accent text on the paper (light) background
+          600: "#C97A3D",
+          500: "#EF9856",
+          400: "#F3AD75",
         },
         violet: {
           500: "#865DFF",
@@ -29,10 +31,20 @@ const config: Config = {
         success: "#36B978",
         warning: "#E3A72F",
         danger: "#E65353",
+        paper: {
+          DEFAULT: "#F0ECE4",
+          raised: "#E7E1D5",
+          line: "#D9D1C0",
+        },
+        ink: {
+          DEFAULT: "#171B20",
+          muted: "#4B5058",
+        },
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        sans: ["var(--font-body)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-body)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       borderRadius: {
         DEFAULT: "6px",

@@ -18,6 +18,7 @@ import { PagesModule } from "./pages/pages.module";
 import { PerformanceModule } from "./performance/performance.module";
 import { ReportsModule } from "./reports/reports.module";
 import { QueueModule } from "./common/queue/queue.module";
+import { LaunchListModule } from "./launch-list/launch-list.module";
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { QueueModule } from "./common/queue/queue.module";
     PagesModule,
     PerformanceModule,
     ReportsModule,
+    LaunchListModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
