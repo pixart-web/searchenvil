@@ -15,14 +15,14 @@
   "dependencies": {
     "@searchanvil/shared": "workspace:*",
     "cheerio": "^1.0.0",
-    "undici": "^7.2.0"
+    "undici": "^7.30.2"
   },
   "devDependencies": {
+    "@searchanvil/eslint-config": "workspace:*",
     "@searchanvil/tsconfig": "workspace:*",
-    "typescript": "^5.7.3",
-    "vitest": "^2.1.8",
     "@types/node": "^22.10.5",
     "eslint": "^8.57.1",
-    "@searchanvil/eslint-config": "workspace:*"
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
   }
 }

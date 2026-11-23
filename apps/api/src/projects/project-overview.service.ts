@@ -54,6 +54,8 @@ export class ProjectOverviewService {
       startedAt: crawl.startedAt,
       finishedAt: crawl.finishedAt,
       pagesCrawled: crawl.pagesCrawled,
+      errorMessage: crawl.errorMessage,
+      auditStatus: crawl.auditRun?.status ?? null,
       overallScore: crawl.auditRun?.score?.overallScore ?? null,
     }));
 

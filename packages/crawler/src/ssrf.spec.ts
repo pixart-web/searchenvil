@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { isBlockedAddress, createSafeLookup } from "./ssrf";
 
+it("checks the hexadecimal spelling of IPv4-mapped IPv6 addresses", () => {
+  expect(isBlockedAddress("::ffff:7f00:1")).toBe(true);
+  expect(isBlockedAddress("::ffff:808:808")).toBe(false);
+});
+
 describe("isBlockedAddress", () => {
   it("blocks loopback", () => {
     expect(isBlockedAddress("127.0.0.1")).toBe(true);

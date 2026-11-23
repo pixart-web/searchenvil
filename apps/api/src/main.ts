@@ -5,13 +5,17 @@ import helmet from "helmet";
 import type { Queue } from "bullmq";
 import { AppModule } from "./app.module";
 import { configureApp } from "./configure-app";
+import { desktopAccess } from "./desktop-access";
 import { CRAWL_QUEUE } from "./common/queue/queue.module";
 
 async function bootstrap(): Promise<void> {
+  const port = Number(process.env.API_PORT ?? 4000);
+  const desktop = desktopAccess(process.env, port);
   const app = await NestFactory.create(AppModule, {
     logger: ["error", "warn", "log"],
   });
 
+  if (desktop) app.use(desktop.middleware);
   app.use(helmet());
   app.enableCors({
     origin: process.env.WEB_URL ?? "http://localhost:3000",
@@ -25,8 +29,11 @@ async function bootstrap(): Promise<void> {
   // way; we just also explicitly close CRAWL_QUEUE, which enableShutdownHooks alone would miss.
   registerGracefulShutdown(app);
 
-  const port = Number(process.env.API_PORT ?? 4000);
-  await app.listen(port);
+  if (desktop) {
+    await app.listen(port, desktop.hostname);
+  } else {
+    await app.listen(port);
+  }
   // eslint-disable-next-line no-console
   console.log(`SearchAnvil API listening on :${port}`);
 }

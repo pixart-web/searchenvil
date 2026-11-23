@@ -13,6 +13,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@searchanvil/crawler": "workspace:*",
     "@searchanvil/shared": "workspace:*",
     "playwright-core": "^1.49.1"
   },

@@ -1,5 +1,7 @@
 import type { Config } from "tailwindcss";
 
+const desktop = process.env.NEXT_PUBLIC_SEARCHANVIL_DESKTOP === "1";
+
 const config: Config = {
   darkMode: "class",
   content: ["./src/**/*.{ts,tsx}", "../../packages/ui/src/**/*.{ts,tsx}"],
@@ -7,22 +9,22 @@ const config: Config = {
     extend: {
       colors: {
         forge: {
-          950: "#090B0E",
-          900: "#14181E",
-          850: "#191D24",
-          800: "#1D232C",
+          950: desktop ? "#080B0E" : "#090B0E",
+          900: desktop ? "#10151A" : "#14181E",
+          850: desktop ? "#151C22" : "#191D24",
+          800: desktop ? "#29343D" : "#1D232C",
         },
         steel: {
           600: "#6B7280",
           500: "#7D8492",
-          400: "#A8AFBA",
+          400: desktop ? "#91A0AA" : "#A8AFBA",
           300: "#C3C8D1",
-          100: "#F5F2EC",
+          100: desktop ? "#E3E9ED" : "#F5F2EC",
         },
         ember: {
           700: "#9A4712", // AA-contrast variant for accent text on the paper (light) background
           600: "#C97A3D",
-          500: "#EF9856",
+          500: desktop ? "#D98A45" : "#EF9856",
           400: "#F3AD75",
         },
         violet: {

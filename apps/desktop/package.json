@@ -1,0 +1,40 @@
+{
+  "name": "@searchanvil/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SearchAnvil for macOS",
+  "main": "main.cjs",
+  "scripts": {
+    "test": "node --test runtime.test.cjs",
+    "package:mac": "electron-builder --mac dmg",
+    "stage:mac": "bash scripts/stage-runtime.sh"
+  },
+  "devDependencies": {
+    "electron": "42.0.0",
+    "electron-builder": "26.8.1"
+  },
+  "build": {
+    "appId": "pt.pixart.searchanvil",
+    "productName": "SearchAnvil",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.cjs",
+      "runtime.cjs",
+      "preload.cjs"
+    ],
+    "extraResources": [
+      {
+        "from": "build/runtime",
+        "to": "runtime"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "build/searchanvil.icns",
+      "minimumSystemVersion": "27.2"
+    },
+    "publish": null
+  }
+}

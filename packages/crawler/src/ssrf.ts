@@ -108,6 +108,10 @@ export function isBlockedAddress(address: string): boolean {
       return isBlockedAddress(mapped[1]);
     }
     const value = ipv6ToBigInt(address);
+    if ((value >> 32n) === 0xffffn) {
+      const ipv4 = Number(value & 0xffffffffn);
+      return BLOCKED_V4_CIDRS.some((cidr) => matchesV4(ipv4, cidr));
+    }
     return BLOCKED_V6_CIDRS.some((cidr) => matchesV6(value, cidr));
   }
   // Not a recognizable IP literal — treat conservatively as blocked.

@@ -1,4 +1,5 @@
 import { chromium, type Browser } from "playwright-core";
+import { createBrowserNetwork } from "./browser-network";
 import { isValidHttpUrl } from "@searchanvil/shared";
 import type { CollectOptions, MetricsCollector, PerformanceMetrics } from "./types";
 
@@ -20,16 +21,26 @@ export function createPlaywrightCollector(executablePath: string): MetricsCollec
     }
 
     let browser: Browser | undefined;
+    let network: Awaited<ReturnType<typeof createBrowserNetwork>> | undefined;
     try {
-      browser = await chromium.launch({ executablePath, headless: true });
-      const page = await browser.newPage({ userAgent: options.userAgent });
+      network = await createBrowserNetwork(options.timeoutMs);
+      browser = await chromium.launch({
+        executablePath,
+        headless: true,
+        chromiumSandbox: true,
+        proxy: { server: network.server, bypass: "<-loopback>" },
+        args: ["--disable-quic", "--force-webrtc-ip-handling-policy=disable_non_proxied_udp"],
+      });
+      const page = await browser.newPage({ userAgent: options.userAgent, serviceWorkers: "block" });
       page.setDefaultTimeout(options.timeoutMs);
       page.setDefaultNavigationTimeout(options.timeoutMs);
 
       // Collect LCP/CLS via PerformanceObserver before navigating, so we
       // don't miss entries that fire during the initial paint.
       await page.addInitScript(() => {
-        (window as unknown as { __searchanvilMetrics: { lcp: number; cls: number } }).__searchanvilMetrics = {
+        (
+          window as unknown as { __searchanvilMetrics: { lcp: number; cls: number } }
+        ).__searchanvilMetrics = {
           lcp: 0,
           cls: 0,
         };
@@ -38,16 +49,21 @@ export function createPlaywrightCollector(executablePath: string): MetricsCollec
             const entries = list.getEntries();
             const last = entries[entries.length - 1];
             if (last) {
-              (window as unknown as { __searchanvilMetrics: { lcp: number } }).__searchanvilMetrics.lcp =
-                last.startTime;
+              (
+                window as unknown as { __searchanvilMetrics: { lcp: number } }
+              ).__searchanvilMetrics.lcp = last.startTime;
             }
           }).observe({ type: "largest-contentful-paint", buffered: true });
 
           new PerformanceObserver((list) => {
-            for (const entry of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) {
+            for (const entry of list.getEntries() as unknown as {
+              value: number;
+              hadRecentInput: boolean;
+            }[]) {
               if (!entry.hadRecentInput) {
-                (window as unknown as { __searchanvilMetrics: { cls: number } }).__searchanvilMetrics.cls +=
-                  entry.value;
+                (
+                  window as unknown as { __searchanvilMetrics: { cls: number } }
+                ).__searchanvilMetrics.cls += entry.value;
               }
             }
           }).observe({ type: "layout-shift", buffered: true });
@@ -56,12 +72,16 @@ export function createPlaywrightCollector(executablePath: string): MetricsCollec
         }
       });
 
-      await page.goto(url, { waitUntil: "load", timeout: options.timeoutMs });
+      const navigation = await page.goto(url, { waitUntil: "load", timeout: options.timeoutMs });
+      if (navigation?.headers()["x-searchanvil-egress-blocked"]) {
+        throw new Error("The browser could not reach a public target address.");
+      }
       // Give LCP/CLS observers a brief window after load to settle.
       await page.waitForTimeout(500);
 
       const result = await page.evaluate(() => {
-        const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+        const nav = performance.getEntriesByType("navigation")[0] as
+          PerformanceNavigationTiming | undefined;
         const custom = (window as unknown as { __searchanvilMetrics: { lcp: number; cls: number } })
           .__searchanvilMetrics;
         return {
@@ -81,6 +101,7 @@ export function createPlaywrightCollector(executablePath: string): MetricsCollec
       };
     } finally {
       await browser?.close().catch(() => undefined);
+      await network?.close();
     }
   };
 }

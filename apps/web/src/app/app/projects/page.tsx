@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Spinner, StatusState } from "@searchanvil/ui";
-import { apiFetch } from "@/lib/api-client";
+import { apiFetch, ApiError } from "@/lib/api-client";
 import type { Organization, Project } from "@/lib/types";
 
 type LoadState = "loading" | "ready" | "error";
@@ -39,8 +39,17 @@ export default function ProjectsListPage(): React.ReactElement {
         }
         setProjects(projectList);
         setState("ready");
-      } catch {
-        if (!cancelled) setState("error");
+      } catch (error) {
+        if (cancelled) return;
+        if (
+          process.env.NEXT_PUBLIC_SEARCHANVIL_DESKTOP === "1" &&
+          error instanceof ApiError &&
+          error.status === 401
+        ) {
+          router.replace("/login");
+          return;
+        }
+        setState("error");
       }
     }
     void load();
@@ -60,7 +69,11 @@ export default function ProjectsListPage(): React.ReactElement {
   if (state === "error") {
     return (
       <main className="flex min-h-screen items-center justify-center px-4">
-        <StatusState kind="error" title="Couldn't load your projects" description="Please try signing in again." />
+        <StatusState
+          kind="error"
+          title="Couldn't load your projects"
+          description="Please try signing in again."
+        />
       </main>
     );
   }

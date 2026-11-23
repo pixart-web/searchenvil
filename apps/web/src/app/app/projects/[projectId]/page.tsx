@@ -11,6 +11,7 @@ import {
   Spinner,
   StatusState,
 } from "@searchanvil/ui";
+import { DesktopOverview } from "@/components/desktop-overview";
 import { apiFetch } from "@/lib/api-client";
 import { resolveProjectOrg } from "@/lib/resolve-project-org";
 import { formatCategoryLabel, formatRelativeTime } from "@/lib/format";
@@ -78,6 +79,12 @@ export default function ProjectOverviewPage({
     );
   }
 
+  if (process.env.NEXT_PUBLIC_SEARCHANVIL_DESKTOP === "1") {
+    return (
+      <DesktopOverview projectId={projectId} projectName={overview.project.name} site={site} />
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -139,11 +146,20 @@ function SiteOverviewContent({ site }: { site: SiteOverview }): React.ReactEleme
                 <div className="min-w-0 flex-1 basis-40">
                   <p className="truncate text-sm font-medium text-steel-100">{issue.title}</p>
                   <p className="text-xs text-steel-500">
-                    {issue.affectedPageCount} affected page{issue.affectedPageCount === 1 ? "" : "s"}
+                    {issue.affectedPageCount} affected page
+                    {issue.affectedPageCount === 1 ? "" : "s"}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge tone={issue.impact === "HIGH" ? "danger" : issue.impact === "MEDIUM" ? "warning" : "neutral"}>
+                  <Badge
+                    tone={
+                      issue.impact === "HIGH"
+                        ? "danger"
+                        : issue.impact === "MEDIUM"
+                          ? "warning"
+                          : "neutral"
+                    }
+                  >
                     {issue.impact} IMPACT
                   </Badge>
                   <Badge tone="neutral">{issue.effort}</Badge>
@@ -181,10 +197,10 @@ function SiteOverviewContent({ site }: { site: SiteOverview }): React.ReactEleme
         <CardContent className="space-y-2">
           {site.recentCrawls.map((recent) => (
             <div key={recent.id} className="flex items-center justify-between text-sm">
-              <span className="text-steel-400">{formatRelativeTime(recent.finishedAt ?? recent.createdAt)}</span>
-              <span className="font-mono text-steel-300">
-                {recent.overallScore ?? "—"}
+              <span className="text-steel-400">
+                {formatRelativeTime(recent.finishedAt ?? recent.createdAt)}
               </span>
+              <span className="font-mono text-steel-300">{recent.overallScore ?? "—"}</span>
             </div>
           ))}
         </CardContent>

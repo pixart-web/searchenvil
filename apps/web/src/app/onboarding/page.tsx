@@ -14,6 +14,7 @@ export default function OnboardingPage(): React.ReactElement | null {
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [organization, setOrganization] = useState<Organization | undefined>();
   const [websiteUrl, setWebsiteUrl] = useState("");
+  const [crawlError, setCrawlError] = useState<string>();
   const [error, setError] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdSite, setCreatedSite] = useState<{ project: Project; site: Site } | undefined>();
@@ -69,7 +70,11 @@ export default function OnboardingPage(): React.ReactElement | null {
       await apiFetch(
         `/organizations/${organization.id}/projects/${project.id}/sites/${site.id}/crawls`,
         { method: "POST", body: {} },
-      ).catch(() => undefined);
+      ).catch((error: unknown) => {
+        setCrawlError(
+          error instanceof ApiError ? error.message : "The first crawl could not be queued.",
+        );
+      });
       setCreatedSite({ project, site });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
@@ -98,12 +103,19 @@ export default function OnboardingPage(): React.ReactElement | null {
             <p className="font-mono text-xs uppercase tracking-[0.3em] text-ember-400">
               SearchAnvil
             </p>
-            <h1 className="text-xl font-semibold text-steel-100">{createdSite.project.name} is ready.</h1>
-            <p className="text-sm text-steel-400">
-              We&apos;re crawling {createdSite.site.rootUrl} now. Search Health and Forge
-              Priorities will appear on the project page once the audit finishes — usually within
-              a minute or two for a small site.
-            </p>
+            <h1 className="text-xl font-semibold text-steel-100">
+              {createdSite.project.name} is ready.
+            </h1>
+            {crawlError ? (
+              <p role="alert" className="text-sm text-danger">
+                {crawlError}
+              </p>
+            ) : (
+              <p className="text-sm text-steel-400">
+                The first crawl for {createdSite.site.rootUrl} is queued. Search Health and Forge
+                Priorities will appear once the audit finishes.
+              </p>
+            )}
             <Button onClick={() => router.push(`/app/projects/${createdSite.project.id}`)}>
               View project
             </Button>

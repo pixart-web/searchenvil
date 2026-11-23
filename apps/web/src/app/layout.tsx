@@ -50,9 +50,17 @@ export const metadata: Metadata = {
     "SearchAnvil crawls your website and reveals the hidden structure beneath it — what's broken, what matters most, and what to fix first.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }): React.ReactElement {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactElement {
+  const desktop = process.env.NEXT_PUBLIC_SEARCHANVIL_DESKTOP === "1" ? " searchanvil-desktop" : "";
   return (
-    <html lang="en" className={`dark ${display.variable} ${body.variable} ${mono.variable}`}>
+    <html
+      lang="en"
+      className={`dark ${display.variable} ${body.variable} ${mono.variable}${desktop}`}
+    >
       <body>{children}</body>
     </html>
   );

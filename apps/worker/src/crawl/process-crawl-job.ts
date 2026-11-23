@@ -68,11 +68,13 @@ export async function processCrawlJob(deps: ProcessCrawlJobDeps, crawlId: string
     await prisma.crawl.update({ where: { id: crawlId }, data: { status: "CRAWLING" } });
 
     const persistPromises: Promise<string | void>[] = [];
+    let persistenceError: Error | undefined;
     const result = await deps.runCrawl(config, {
       signal: controller.signal,
       onPageCrawled: (page) => {
         persistPromises.push(
           persistCrawlPage(prisma, crawlId, page).catch((error) => {
+            persistenceError ??= error instanceof Error ? error : new Error("Failed to persist a crawl page");
             logger.error("failed to persist crawl page", {
               crawlId,
               url: page.normalizedUrl,
@@ -85,6 +87,14 @@ export async function processCrawlJob(deps: ProcessCrawlJobDeps, crawlId: string
 
     // All page rows must exist before link target resolution can be correct.
     await Promise.all(persistPromises);
+    if (persistenceError && !controller.signal.aborted) throw persistenceError;
+    if (
+      !controller.signal.aborted &&
+      result.pages.length > 0 &&
+      result.pages.every((page) => page.statusCode == null && page.fetchError)
+    ) {
+      throw new Error(`Target website unreachable: ${result.pages[0]?.fetchError}`);
+    }
     await finalizeCrawlLinks(prisma, crawlId, result.pages);
 
     const finalStatus = controller.signal.aborted ? "CANCELLED" : "COMPLETED";

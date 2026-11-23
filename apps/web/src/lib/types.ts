@@ -64,6 +64,8 @@ export interface RecentCrawlSummary {
   finishedAt: string | null;
   pagesCrawled: number;
   overallScore: number | null;
+  errorMessage?: string | null;
+  auditStatus?: string | null;
 }
 
 export interface LatestCrawlOverview {

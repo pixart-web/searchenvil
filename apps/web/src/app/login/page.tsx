@@ -8,6 +8,7 @@ import type { CurrentUser } from "@/lib/types";
 
 export default function LoginPage(): React.ReactElement {
   const router = useRouter();
+  const desktop = process.env.NEXT_PUBLIC_SEARCHANVIL_DESKTOP === "1";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | undefined>();
@@ -34,7 +35,9 @@ export default function LoginPage(): React.ReactElement {
     <main className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-ember-400">SearchAnvil</p>
-        <h1 className="mt-1 text-2xl font-semibold text-steel-100">Sign in</h1>
+        <h1 className="mt-1 text-2xl font-semibold text-steel-100">
+          {desktop ? "Open local workspace" : "Sign in"}
+        </h1>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>
           <div>
@@ -64,9 +67,9 @@ export default function LoginPage(): React.ReactElement {
         </form>
 
         <p className="mt-4 text-center text-sm text-steel-400">
-          Don&apos;t have an account?{" "}
+          {desktop ? "First time on this Mac?" : "Don’t have an account?"}{" "}
           <a href="/register" className="text-ember-400 hover:underline">
-            Create one
+            {desktop ? "Create local workspace" : "Create one"}
           </a>
         </p>
       </div>

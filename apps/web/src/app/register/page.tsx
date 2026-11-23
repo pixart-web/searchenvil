@@ -8,6 +8,7 @@ import type { CurrentUser } from "@/lib/types";
 
 export default function RegisterPage(): React.ReactElement {
   const router = useRouter();
+  const desktop = process.env.NEXT_PUBLIC_SEARCHANVIL_DESKTOP === "1";
   const [name, setName] = useState("");
   const [organizationName, setOrganizationName] = useState("");
   const [email, setEmail] = useState("");
@@ -36,7 +37,9 @@ export default function RegisterPage(): React.ReactElement {
     <main className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-ember-400">SearchAnvil</p>
-        <h1 className="mt-1 text-2xl font-semibold text-steel-100">Create your account</h1>
+        <h1 className="mt-1 text-2xl font-semibold text-steel-100">
+          {desktop ? "Create local workspace" : "Create your account"}
+        </h1>
         <p className="mt-1 text-sm text-steel-400">Forge better search performance.</p>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>
@@ -45,7 +48,9 @@ export default function RegisterPage(): React.ReactElement {
             <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
           <div>
-            <Label htmlFor="organizationName">Organization name</Label>
+            <Label htmlFor="organizationName">
+              {desktop ? "Workspace name" : "Organization name"}
+            </Label>
             <Input
               id="organizationName"
               value={organizationName}
@@ -76,7 +81,7 @@ export default function RegisterPage(): React.ReactElement {
           </div>
           <FieldError>{error}</FieldError>
           <Button type="submit" className="w-full" isLoading={isSubmitting}>
-            Create account
+            {desktop ? "Create workspace" : "Create account"}
           </Button>
         </form>
 
