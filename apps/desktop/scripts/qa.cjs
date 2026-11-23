@@ -43,6 +43,20 @@ if (process.platform === "darwin" && app) {
   run("runtime integration", process.execPath, [`${scripts}/smoke-runtime.cjs`, runtime]);
   run("installed Electron workflows", process.execPath, [`${scripts}/smoke-electron.cjs`, app]);
   run("forced parent exit", process.execPath, [`${scripts}/qa-forced-exit.cjs`, app]);
+  if (process.env.SEARCHANVIL_QA_LIVE_RECOVERY === "1") {
+    run("live pipeline recovery checkpoints", process.execPath, [
+      `${scripts}/live-recovery.cjs`,
+      runtime,
+    ]);
+    run("startup port contention", process.execPath, [
+      `${scripts}/qa-port-contention.cjs`,
+      runtime,
+    ]);
+    run("immediate relaunch", process.execPath, [`${scripts}/qa-forced-exit.cjs`, app], {
+      ...process.env,
+      SEARCHANVIL_QA_IMMEDIATE: "1",
+    });
+  }
 } else {
   phases.push({
     name: "installed macOS checks",

@@ -41,7 +41,12 @@ export async function processAuditJob(deps: ProcessAuditJobDeps, crawlId: string
         data: { status: "RUNNING", startedAt: new Date(), errorMessage: null },
       })
     : await prisma.auditRun.create({
-        data: { crawlId, rulesetVersion: RULESET_VERSION, status: "RUNNING", startedAt: new Date() },
+        data: {
+          crawlId,
+          rulesetVersion: RULESET_VERSION,
+          status: "RUNNING",
+          startedAt: new Date(),
+        },
       });
 
   try {
@@ -52,55 +57,64 @@ export async function processAuditJob(deps: ProcessAuditJobDeps, crawlId: string
     const prioritized = new Map(prioritizeIssues(site, issues).map((p) => [p.ruleKey, p]));
     const health = computeSearchHealth(site, issues);
 
-    for (const issue of issues) {
-      const ruleId = ruleIdByKey.get(issue.ruleKey);
-      const priority = prioritized.get(issue.ruleKey);
-      if (!ruleId || !priority) continue; // Should be impossible — both are derived from the same `issues`.
+    await prisma.$transaction(
+      async (tx) => {
+        // A failed or interrupted write must never expose a partial score or
+        // append duplicate findings when the same run is retried.
+        await tx.auditIssue.deleteMany({ where: { auditRunId: auditRun.id } });
+        for (const issue of issues) {
+          const ruleId = ruleIdByKey.get(issue.ruleKey);
+          const priority = prioritized.get(issue.ruleKey);
+          if (!ruleId || !priority) continue; // Should be impossible — both are derived from the same `issues`.
 
-      const auditIssue = await prisma.auditIssue.create({
-        data: {
-          auditRunId: auditRun.id,
-          ruleId,
-          severity: issue.rule.defaultSeverity,
-          impact: priority.impact,
-          effort: issue.rule.defaultEffort,
-          affectedPageCount: issue.occurrences.length,
-          title: issue.rule.name,
-          summary: issue.rule.description,
-          priorityScore: priority.priorityScore,
-        },
-      });
+          const auditIssue = await tx.auditIssue.create({
+            data: {
+              auditRunId: auditRun.id,
+              ruleId,
+              severity: issue.rule.defaultSeverity,
+              impact: priority.impact,
+              effort: issue.rule.defaultEffort,
+              affectedPageCount: issue.occurrences.length,
+              title: issue.rule.name,
+              summary: issue.rule.description,
+              priorityScore: priority.priorityScore,
+            },
+          });
 
-      await prisma.auditOccurrence.createMany({
-        data: issue.occurrences.map((occ) => ({
-          auditIssueId: auditIssue.id,
-          pageId: occ.pageId,
-          evidence: occ.evidence as object,
-        })),
-      });
-    }
+          await tx.auditOccurrence.createMany({
+            data: issue.occurrences.map((occ) => ({
+              auditIssueId: auditIssue.id,
+              pageId: occ.pageId,
+              evidence: occ.evidence as object,
+            })),
+          });
+        }
 
-    await prisma.auditScore.upsert({
-      where: { auditRunId: auditRun.id },
-      create: {
-        auditRunId: auditRun.id,
-        scoringVersion: SCORING_VERSION,
-        overallScore: health.overallScore,
-        categoryScores: health.categoryScores,
-        explanation: health.explanation as unknown as object,
+        await tx.auditScore.upsert({
+          where: { auditRunId: auditRun.id },
+          create: {
+            auditRunId: auditRun.id,
+            scoringVersion: SCORING_VERSION,
+            overallScore: health.overallScore,
+            categoryScores: health.categoryScores,
+            explanation: health.explanation as unknown as object,
+          },
+          update: {
+            scoringVersion: SCORING_VERSION,
+            overallScore: health.overallScore,
+            categoryScores: health.categoryScores,
+            explanation: health.explanation as unknown as object,
+          },
+        });
+
+        const completed = await tx.auditRun.updateMany({
+          where: { id: auditRun.id, status: "RUNNING" },
+          data: { status: "COMPLETED", finishedAt: new Date() },
+        });
+        if (!completed.count) throw new Error("Audit is no longer running.");
       },
-      update: {
-        scoringVersion: SCORING_VERSION,
-        overallScore: health.overallScore,
-        categoryScores: health.categoryScores,
-        explanation: health.explanation as unknown as object,
-      },
-    });
-
-    await prisma.auditRun.update({
-      where: { id: auditRun.id },
-      data: { status: "COMPLETED", finishedAt: new Date() },
-    });
+      { timeout: 30_000 },
+    );
 
     logger.info("audit run finished", {
       crawlId,
@@ -111,8 +125,8 @@ export async function processAuditJob(deps: ProcessAuditJobDeps, crawlId: string
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error("audit run failed", { crawlId, error: message });
-    await prisma.auditRun.update({
-      where: { id: auditRun.id },
+    await prisma.auditRun.updateMany({
+      where: { id: auditRun.id, status: "RUNNING" },
       data: { status: "FAILED", finishedAt: new Date(), errorMessage: message },
     });
   }

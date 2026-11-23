@@ -41,6 +41,12 @@ function startProcess(command, args, { cwd, env, log, name, ipc }) {
     env,
     stdio: ipc ? ["ignore", "pipe", "pipe", "ipc"] : ["ignore", "pipe", "pipe"],
   });
+  let output = "";
+  const remember = (chunk) => {
+    output = (output + chunk.toString()).slice(-4096);
+  };
+  child.stdout.on("data", remember);
+  child.stderr.on("data", remember);
   child.stdout.pipe(stream, { end: false });
   child.stderr.pipe(stream, { end: false });
   stream.once("error", () => child.kill());
@@ -51,10 +57,16 @@ function startProcess(command, args, { cwd, env, log, name, ipc }) {
     });
     child.once("close", (code, signal) => {
       stream.end();
-      resolve(code === 0 ? undefined : new Error(`${name} exited (${signal ?? code})`));
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      const error = new Error(`${name} exited (${signal ?? code})`);
+      if (/EADDRINUSE|bind: Address already in use/i.test(output)) error.code = "EADDRINUSE";
+      resolve(error);
     });
   });
-  return { child, exited };
+  return { child, exited, output: () => output };
 }
 
 async function waitUntilReady(url, headers, child, name) {
@@ -67,6 +79,25 @@ async function waitUntilReady(url, headers, child, name) {
       await delay(250);
     }
     throw new Error(`${name} did not become ready`);
+  };
+  await Promise.race([
+    ready(),
+    child.exited.then((error) => {
+      throw error ?? new Error(`${name} exited during startup`);
+    }),
+  ]);
+}
+
+async function waitForOwnListener(child, marker, name) {
+  const ready = async () => {
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      if (child.output().includes(marker)) return;
+      if (child.child.exitCode !== null || child.child.signalCode !== null) {
+        throw (await child.exited) ?? new Error(`${name} exited during startup`);
+      }
+      await delay(100);
+    }
+    throw new Error(`${name} did not bind its local listener`);
   };
   await Promise.race([
     ready(),
@@ -128,7 +159,44 @@ function gateway({ capability, apiPort, webPort, getOrigin }) {
   });
 }
 
+// Electron's instance lock disappears when the parent dies. PostgreSQL's
+// own lock remains until the old supervisor finishes stopping its services.
+async function waitForDatabaseRelease(database) {
+  const deadline = Date.now() + 20_000;
+  const lock = path.join(database, "postmaster.pid");
+  for (;;) {
+    const pid = Number(
+      (
+        await readFile(lock, "utf8").catch((error) => {
+          if (error.code !== "ENOENT") throw error;
+          return "";
+        })
+      ).split("\n")[0],
+    );
+    if (!Number.isInteger(pid) || pid <= 1) return;
+    try {
+      process.kill(pid, 0);
+    } catch (error) {
+      if (error.code === "ESRCH") return;
+      throw error;
+    }
+    if (Date.now() >= deadline)
+      throw new Error("The previous SearchAnvil database is still shutting down.");
+    await delay(100);
+  }
+}
+
 async function startRuntime(resources, data, onFailure) {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await startRuntimeAttempt(resources, data, onFailure);
+    } catch (error) {
+      if (error.code !== "EADDRINUSE" || attempt === 3) throw error;
+    }
+  }
+}
+
+async function startRuntimeAttempt(resources, data, onFailure) {
   const native = path.join(resources, "native", "bin");
   const logs = path.join(data, "logs");
   const database = path.join(data, "database");
@@ -245,6 +313,7 @@ async function startRuntime(resources, data, onFailure) {
       return process;
     }
 
+    await waitForDatabaseRelease(database);
     const postgres = supervise(
       "PostgreSQL",
       pgCommand("postgres"),
@@ -281,7 +350,13 @@ async function startRuntime(resources, data, onFailure) {
       `bind ${host}\nport ${redisPort}\nrequirepass ${redisPassword}\nappendonly yes\nsave ""\n`,
       { mode: 0o600 },
     );
-    supervise("Redis", pgCommand("redis-server"), [redisConfig, "--dir", queue], baseEnv);
+    const redis = supervise(
+      "Redis",
+      pgCommand("redis-server"),
+      [redisConfig, "--dir", queue],
+      baseEnv,
+    );
+    await waitForOwnListener(redis, "Ready to accept connections tcp", "Redis");
 
     const node = path.join(resources, "node", "bin", "node");
     const schema = path.join(resources, "database", "prisma");
@@ -356,6 +431,8 @@ async function startRuntime(resources, data, onFailure) {
         REDIS_URL: "",
       },
     );
+    // Probe only after the owned process confirms it bound the port.
+    await waitForOwnListener(web, "Ready in ", "SearchAnvil interface");
     await waitUntilReady(`http://${host}:${webPort}/login`, {}, web, "SearchAnvil interface");
     await access(env.CHROMIUM_EXECUTABLE_PATH);
     const worker = supervise(
@@ -387,4 +464,4 @@ async function startRuntime(resources, data, onFailure) {
   }
 }
 
-module.exports = { gateway, startRuntime };
+module.exports = { gateway, startRuntime, waitForDatabaseRelease };

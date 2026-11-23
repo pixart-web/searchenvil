@@ -13,6 +13,9 @@ export async function reconcileDesktopWork(prisma: PrismaClient): Promise<void> 
     prisma.auditScore.deleteMany({
       where: { auditRun: { status: { in: ["PENDING", "RUNNING"] } } },
     }),
+    prisma.auditIssue.deleteMany({
+      where: { auditRun: { status: { in: ["PENDING", "RUNNING"] } } },
+    }),
     prisma.auditRun.updateMany({
       where: { status: { in: ["PENDING", "RUNNING"] } },
       data: { status: "FAILED", finishedAt, errorMessage: INTERRUPTED },

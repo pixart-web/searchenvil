@@ -39,11 +39,15 @@ async function handleCrawlJob(job: { id?: string; data: CrawlJobData }): Promise
       prisma,
       runCrawl,
       enqueueAuditJob: async (crawlId) => {
-        await auditQueue.add("audit", { crawlId });
+        await auditQueue.add("audit", { crawlId }, desktop ? { jobId: crawlId } : undefined);
       },
       enqueuePerformanceJob: CHROMIUM_EXECUTABLE_PATH
         ? async (crawlId) => {
-            await performanceQueue.add("performance", { crawlId });
+            await performanceQueue.add(
+              "performance",
+              { crawlId },
+              desktop ? { jobId: crawlId } : undefined,
+            );
           }
         : undefined,
     },
@@ -63,6 +67,14 @@ async function handleAuditJob(job: { id?: string; data: AuditJobData }): Promise
 }
 
 async function handlePerformanceJob(job: { id?: string; data: PerformanceJobData }): Promise<void> {
+  if (
+    desktop &&
+    (await prisma.pagePerformance.findFirst({
+      where: { page: { crawlId: job.data.crawlId }, errorMessage: INTERRUPTED },
+      select: { id: true },
+    }))
+  )
+    return;
   logger.info("processing performance job", { jobId: job.id, crawlId: job.data.crawlId });
   if (!CHROMIUM_EXECUTABLE_PATH) {
     logger.error("performance job skipped: CHROMIUM_EXECUTABLE_PATH not configured", {
@@ -71,7 +83,11 @@ async function handlePerformanceJob(job: { id?: string; data: PerformanceJobData
     return;
   }
   await processPerformanceJob(
-    { prisma, collector: createPlaywrightCollector(CHROMIUM_EXECUTABLE_PATH) },
+    {
+      prisma,
+      collector: createPlaywrightCollector(CHROMIUM_EXECUTABLE_PATH),
+      preserveRecordedSamples: desktop,
+    },
     job.data.crawlId,
   );
 }

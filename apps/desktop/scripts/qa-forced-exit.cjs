@@ -118,15 +118,32 @@ async function main() {
       await prisma.$disconnect();
     }
 
+    const immediate = process.env.SEARCHANVIL_QA_IMMEDIATE === "1";
+    if (immediate) {
+      const worker = services.find(({ command }) => command.endsWith("/worker/dist/main.js"));
+      assert.ok(worker, "Expected owned worker for controlled shutdown delay");
+      process.kill(worker.pid, "SIGSTOP");
+    }
     const killedAt = performance.now();
-    app.process().kill("SIGKILL");
+    const killed = app.process();
+    const exited = new Promise((resolve) => killed.once("exit", resolve));
+    killed.kill("SIGKILL");
     app = undefined;
+    await exited;
     const survivors = () =>
       processes().filter(
         (current) =>
           !current.state.startsWith("Z") &&
           services.some(({ pid, command }) => pid === current.pid && current.command === command),
       );
+    if (immediate) {
+      assert.ok(
+        survivors().some(({ pid }) => pid === postgres.pid),
+        "Replacement must launch while the old PostgreSQL process is still alive",
+      );
+      app = await _electron.launch({ executablePath, args, timeout: 45_000 });
+      console.log("Immediate replacement launched while the previous runtime was shutting down.");
+    }
     for (let n = 0; n < 120 && survivors().length; n += 1) await delay(100);
     assert.deepEqual(
       survivors().map(({ pid }) => pid),
@@ -135,7 +152,7 @@ async function main() {
     console.log("Service cleanup milliseconds", Math.round(performance.now() - killedAt));
     await assert.rejects(fetch(origin, { signal: AbortSignal.timeout(1000) }));
 
-    app = await _electron.launch({ executablePath, args, timeout: 45_000 });
+    app ??= await _electron.launch({ executablePath, args, timeout: 45_000 });
     const restarted = await app.firstWindow({ timeout: 45_000 });
     await restarted.getByRole("heading", { name: "Open local workspace" }).waitFor();
     const log = await readFile(path.join(data, "logs", "PostgreSQL.log"), "utf8");
@@ -172,6 +189,7 @@ async function main() {
       if (!services.some(({ pid, command }) => pid === entry.pid && command === entry.command))
         continue;
       try {
+        process.kill(entry.pid, "SIGCONT");
         process.kill(entry.pid, "SIGTERM");
       } catch (error) {
         if (error.code !== "ESRCH") throw error;

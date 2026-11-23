@@ -1,4 +1,8 @@
-import { DEFAULT_MAX_SAMPLES, selectSamplePages, type MetricsCollector } from "@searchanvil/performance";
+import {
+  DEFAULT_MAX_SAMPLES,
+  selectSamplePages,
+  type MetricsCollector,
+} from "@searchanvil/performance";
 import type { PrismaClient } from "@searchanvil/database";
 import { logger } from "../logger";
 
@@ -11,6 +15,7 @@ export interface ProcessPerformanceJobDeps {
   maxSamples?: number;
   timeoutPerPageMs?: number;
   userAgent?: string;
+  preserveRecordedSamples?: boolean;
 }
 
 /**
@@ -22,7 +27,10 @@ export interface ProcessPerformanceJobDeps {
  * and low queue concurrency keeps multiple simultaneous jobs from stacking
  * up browser processes.
  */
-export async function processPerformanceJob(deps: ProcessPerformanceJobDeps, crawlId: string): Promise<void> {
+export async function processPerformanceJob(
+  deps: ProcessPerformanceJobDeps,
+  crawlId: string,
+): Promise<void> {
   const { prisma } = deps;
 
   const pages = await prisma.crawlPage.findMany({
@@ -38,6 +46,13 @@ export async function processPerformanceJob(deps: ProcessPerformanceJobDeps, cra
   });
 
   for (const page of sampled) {
+    if (deps.preserveRecordedSamples) {
+      const previous = await prisma.pagePerformance.findUnique({
+        where: { pageId: page.id },
+        select: { status: true },
+      });
+      if (previous && ["COMPLETED", "FAILED", "SKIPPED"].includes(previous.status)) continue;
+    }
     await prisma.pagePerformance.upsert({
       where: { pageId: page.id },
       create: { pageId: page.id, status: "RUNNING" },
