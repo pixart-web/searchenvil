@@ -1,17 +1,17 @@
 # Packaged app results
 
-The arm64 0.1.2 disk image was verified with `hdiutil verify`, mounted read-only, and copied into an isolated Applications directory. The copied build passed `codesign --verify --deep --strict` and ran with a disposable profile on macOS 27.2.1.
+## SearchAnvil 0.1.3
 
-- [DMG](../../../apps/desktop/dist/SearchAnvil-0.1.2-arm64.dmg)
-- [Checksums](../../../apps/desktop/dist/SHA256SUMS)
-- [Machine-readable phase results](../../../apps/desktop/dist/QA_RESULTS.json)
+The arm64 disk image passed `hdiutil verify`. It was mounted read-only and the app was copied to a disposable Applications directory. The copied app passed `codesign --verify --deep --strict` and ran on Apple Silicon macOS 27.2.1. The bundle minimum is macOS 27.2.
+
+- [DMG](../../../apps/desktop/dist/SearchAnvil-0.1.3-arm64.dmg)
+- [SHA-256 checksums](../../../apps/desktop/dist/SHA256SUMS)
+- [Machine-readable QA results](../../../apps/desktop/dist/QA_RESULTS.json)
 - [Execution log](../../../apps/desktop/dist/QA_EXECUTION.log)
 - [Overview screenshot](../../../apps/desktop/dist/SearchAnvil-Overview.png)
 
-DMG SHA-256 `7e5f14c22b10ad98c79aaf637a68237065ea545091dfe61c3dd5a8cc21bb7681`.
+DMG SHA-256 `8c13e204034efcc2fdd08e573cdf5190d9ff5a5e7a10939a87ac8a2caa1411b8`.
 
-The installed app completed workspace creation, project and site creation, two bounded live audits, issue and page navigation, comparison, performance measurement and CSV save with destination chosen by the test harness. The overview's severity totals matched and no horizontal overflow was found at 820 × 600. Normal quit and relaunch retained the workspace. The same-profile second instance exited while the first window stayed open.
+The production app passed login and workspace creation, two bounded live audits, comparison, performance measurement, CSV export and persistence after quit and restart. The 820 × 600 overflow check and renderer isolation checks also passed. All 11 fixture checkpoints passed using runtime binaries from the same copied app. The unmodified app passed immediate restart while the previous database was still alive, and no recorded service survived cleanup. See [live recovery results](LIVE_RECOVERY_REPORT.md) for process and state checks. Signing and notarization were outside this QA gate.
 
-After actual Electron SIGKILL, all recorded supervisor-owned processes exited and the previous gateway was unreachable. Relaunch reconciled a seeded running crawl to failed and preserved a seeded completed crawl and completed audit. The seeded state checks recovery of persisted records. Separately, the normal live smoke exercised actual crawl execution. Signing and notarization were outside the QA gate.
-
-Upgrade verification also passed. A separate disposable profile was seeded with the retained 0.1.1 app and then opened by the copied 0.1.2 app. The previously saved project was still present.
+The prior 0.1.2 result and upgrade evidence are preserved in the repository history. This iteration focused on restart and crash recovery.

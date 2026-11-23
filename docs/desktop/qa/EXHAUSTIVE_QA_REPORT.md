@@ -1,4 +1,6 @@
-# SA-DESKTOP-02 QA report
+# SA-DESKTOP-02 QA report for 0.1.2
+
+See the [SA-DESKTOP-03 live recovery report](LIVE_RECOVERY_REPORT.md) for the current recovery evidence and decision.
 
 **NOT READY FOR INTERNAL MACOS TESTING**
 
