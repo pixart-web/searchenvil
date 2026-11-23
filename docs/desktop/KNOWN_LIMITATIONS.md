@@ -3,7 +3,7 @@
 | Priority | Open item |
 | --- | --- |
 | P1 | Full forced-termination and sleep/wake recovery is pending. BullMQ persists work, but a hard kill can leave processes or partially persisted audits that require controlled recovery. |
-| P1 | Production dependency advisories remain after updating the affected Next.js and Undici versions. Reachability triage and upstream dependency updates are required before the security gate can pass. |
+| P2 | The 0.1.1 production dependency scan has zero high and critical advisories. Four moderate findings remain in file-type, Nest core and minimatch. See the [follow-up report](SECURITY_INSTALLATION_REPORT.md). |
 | P1 | The package needs a clean-machine installation and upgrade/restore drill. The internal arm64 test uses the build Mac. Intel and older macOS compatibility are unverified. |
 | P2 | The command shell and shared styling cover the existing routes. The remaining screen-specific layouts, optional evidence inspector, richer project status and resize/accessibility review are pending. |
 | P2 | Local workspace accounts reuse existing email and password fields. Email acts as a local identifier. Desktop account reset and macOS identity bootstrap have no dedicated workflow. |

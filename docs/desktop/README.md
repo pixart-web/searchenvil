@@ -10,4 +10,5 @@ SearchAnvil Desktop runs the existing SearchAnvil application services on the Ma
 - [Build and install on macOS](MACOS_PACKAGING.md)
 - [Testing](TESTING.md)
 - [Known limitations](KNOWN_LIMITATIONS.md)
-- [Final handoff](FINAL_HANDOFF.md)
+- [0.1.1 security and installation report](SECURITY_INSTALLATION_REPORT.md)
+- [Original 0.1.0 handoff](FINAL_HANDOFF.md)

@@ -14,9 +14,11 @@ async function main() {
   const email = "desktop-smoke@example.test";
   const password = randomBytes(24).toString("hex");
 
-  async function run(work) {
+  const previous = process.env.SEARCHANVIL_SMOKE_PREVIOUS_EXECUTABLE;
+
+  async function run(work, launchPath = executablePath) {
     const electron = await _electron.launch({
-      executablePath,
+      executablePath: launchPath,
       args: [`--user-data-dir=${data}`],
       timeout: 60_000,
     });
@@ -30,7 +32,7 @@ async function main() {
     }
   }
 
-  await run(async (page, electron) => {
+  const seedWorkspace = async (page, electron) => {
     await page.getByRole("heading", { name: "Open local workspace" }).waitFor();
     assert.deepEqual(
       await page.evaluate(() => ({
@@ -172,7 +174,8 @@ async function main() {
     console.log(
       "Opened the app, verified renderer isolation, registered, created a project and opened Audits.",
     );
-  });
+  };
+  await run(seedWorkspace, previous ? path.resolve(previous) : executablePath);
 
   await run(async (page) => {
     const project = page.getByRole("link", { name: /example/i });
@@ -184,7 +187,11 @@ async function main() {
       await page.getByRole("button", { name: "Sign in" }).click();
     }
     await project.waitFor();
-    console.log("Relaunched the app and found the persisted project.");
+    console.log(
+      previous
+        ? "Opened the previous build’s project in the patched build."
+        : "Relaunched the app and found the persisted project.",
+    );
   });
 }
 

@@ -1,4 +1,6 @@
-# SearchAnvil macOS internal build
+# SearchAnvil macOS 0.1.0 internal build
+
+See the [0.1.1 security and installation report](SECURITY_INSTALLATION_REPORT.md) for the current package and verification.
 
 ## Release recommendation
 

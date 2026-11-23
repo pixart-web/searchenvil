@@ -27,8 +27,8 @@ pnpm --filter @searchanvil/api deploy --prod "$stage/api"
 pnpm --filter @searchanvil/worker deploy --prod "$stage/worker"
 pnpm --filter @searchanvil/database deploy "$stage/database"
 
-source_client=$(find node_modules/.pnpm -path '*/.prisma/client' -type d -print -quit)
-test -n "$source_client"
+source_client=$(cd -P packages/database/node_modules/@prisma/client && cd ../.. && pwd)/.prisma/client
+test -d "$source_client"
 for component in api worker database; do
   # pnpm deploy leaves an unused self-alias targeting the source workspace.
   self_alias="$stage/$component/node_modules/.pnpm/node_modules/@searchanvil/$component"
