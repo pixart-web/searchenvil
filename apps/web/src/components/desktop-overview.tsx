@@ -7,6 +7,7 @@ const severity = [
   ["HIGH", "High", "high"],
   ["MEDIUM", "Medium", "medium"],
   ["LOW", "Low", "low"],
+  ["NOTICE", "Notice", "neutral"],
 ] as const;
 
 function healthBand(score: number): string {

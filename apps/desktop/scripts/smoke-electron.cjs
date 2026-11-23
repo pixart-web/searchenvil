@@ -149,6 +149,11 @@ async function main() {
         await page.getByRole("heading", { name: "Technical health matrix" }).waitFor();
         await page.getByRole("heading", { name: "Forge Priorities" }).waitFor();
         assert.ok(await page.locator(".operations-category").count());
+        const metrics = await page.locator(".operations-metrics dd").allTextContents();
+        assert.equal(
+          metrics.slice(2, -1).reduce((total, count) => total + Number(count), 0),
+          Number(metrics.at(-1)),
+        );
         await page.screenshot({ path: process.env.SEARCHANVIL_SMOKE_SCREENSHOT });
         await page.setViewportSize({ width: 820, height: 600 });
         assert.equal(
