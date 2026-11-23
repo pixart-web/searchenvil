@@ -1,6 +1,6 @@
 {
   "name": "@searchanvil/desktop",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "SearchAnvil for macOS",
   "main": "main.cjs",
@@ -22,7 +22,9 @@
     "files": [
       "main.cjs",
       "runtime.cjs",
-      "preload.cjs"
+      "preload.cjs",
+      "supervisor.cjs",
+      "supervisor-client.cjs"
     ],
     "extraResources": [
       {
@@ -35,6 +37,10 @@
       "icon": "build/searchanvil.icns",
       "minimumSystemVersion": "27.2"
     },
-    "publish": null
+    "publish": null,
+    "asarUnpack": [
+      "supervisor.cjs",
+      "runtime.cjs"
+    ]
   }
 }

@@ -1,13 +1,22 @@
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
 import { prisma } from "@searchanvil/database";
-import type { CrawlConfig, CrawlPageResult, CrawlResult, RunCrawlOptions } from "@searchanvil/crawler";
+import type {
+  CrawlConfig,
+  CrawlPageResult,
+  CrawlResult,
+  RunCrawlOptions,
+} from "@searchanvil/crawler";
 import { processCrawlJob } from "./process-crawl-job";
 
 async function seedCrawl(): Promise<{ crawlId: string; cleanup: () => Promise<void> }> {
   const suffix = randomUUID();
   const user = await prisma.user.create({
-    data: { email: `worker-test-${suffix}@searchanvil.test`, name: "Worker Test", passwordHash: "x" },
+    data: {
+      email: `worker-test-${suffix}@searchanvil.test`,
+      name: "Worker Test",
+      passwordHash: "x",
+    },
   });
   const org = await prisma.organization.create({
     data: {
@@ -20,7 +29,11 @@ async function seedCrawl(): Promise<{ crawlId: string; cleanup: () => Promise<vo
     data: { organizationId: org.id, name: "Worker Test Project" },
   });
   const site = await prisma.site.create({
-    data: { projectId: project.id, displayName: "Test Site", rootUrl: `https://site-${suffix}.example.com` },
+    data: {
+      projectId: project.id,
+      displayName: "Test Site",
+      rootUrl: `https://site-${suffix}.example.com`,
+    },
   });
   const crawl = await prisma.crawl.create({
     data: { siteId: site.id, config: {}, maxPages: 200, maxDepth: 5 },
@@ -82,7 +95,10 @@ describe("processCrawlJob", () => {
     const { crawlId, cleanup } = await seedCrawl();
     cleanups.push(cleanup);
 
-    const site = await prisma.crawl.findUniqueOrThrow({ where: { id: crawlId }, include: { site: true } });
+    const site = await prisma.crawl.findUniqueOrThrow({
+      where: { id: crawlId },
+      include: { site: true },
+    });
     const home = `${site.site.rootUrl}/`;
     const about = `${site.site.rootUrl}/about`;
 
@@ -101,11 +117,23 @@ describe("processCrawlJob", () => {
           language: "en",
           wordCount: 5,
           links: [
-            { href: "/about", resolvedUrl: about, isInternal: true, anchorText: "About", rel: undefined },
+            {
+              href: "/about",
+              resolvedUrl: about,
+              isInternal: true,
+              anchorText: "About",
+              rel: undefined,
+            },
           ],
           images: [{ src: "/logo.png", altText: "Logo", hasAlt: true }],
           structuredData: [
-            { format: "json-ld", schemaType: "Organization", raw: { "@type": "Organization" }, isValid: true, errors: undefined },
+            {
+              format: "json-ld",
+              schemaType: "Organization",
+              raw: { "@type": "Organization" },
+              isValid: true,
+              errors: undefined,
+            },
           ],
           openGraph: [],
         },
@@ -126,8 +154,12 @@ describe("processCrawlJob", () => {
       {
         prisma,
         runCrawl: fakeRunCrawl,
-        enqueueAuditJob: async (id) => { enqueuedAuditFor = id; },
-        enqueuePerformanceJob: async (id) => { enqueuedPerformanceFor = id; },
+        enqueueAuditJob: async (id) => {
+          enqueuedAuditFor = id;
+        },
+        enqueuePerformanceJob: async (id) => {
+          enqueuedPerformanceFor = id;
+        },
       },
       crawlId,
     );
@@ -142,7 +174,10 @@ describe("processCrawlJob", () => {
     expect(enqueuedPerformanceFor).toBe(crawlId);
     expect(finished.finishedAt).toBeTruthy();
 
-    const pages = await prisma.crawlPage.findMany({ where: { crawlId }, orderBy: { normalizedUrl: "asc" } });
+    const pages = await prisma.crawlPage.findMany({
+      where: { crawlId },
+      orderBy: { normalizedUrl: "asc" },
+    });
     expect(pages).toHaveLength(2);
     const homeRow = pages.find((p) => p.normalizedUrl === home);
     expect(homeRow?.title).toBe("Home");
@@ -153,7 +188,9 @@ describe("processCrawlJob", () => {
     expect(images).toHaveLength(1);
     expect(images[0]?.altText).toBe("Logo");
 
-    const structuredData = await prisma.crawlStructuredDataBlock.findMany({ where: { pageId: homeRow!.id } });
+    const structuredData = await prisma.crawlStructuredDataBlock.findMany({
+      where: { pageId: homeRow!.id },
+    });
     expect(structuredData).toHaveLength(1);
     expect(structuredData[0]?.schemaType).toBe("Organization");
 
@@ -177,8 +214,12 @@ describe("processCrawlJob", () => {
       {
         prisma,
         runCrawl: fakeRunCrawl,
-        enqueueAuditJob: async () => { auditEnqueued = true; },
-        enqueuePerformanceJob: async () => { performanceEnqueued = true; },
+        enqueueAuditJob: async () => {
+          auditEnqueued = true;
+        },
+        enqueuePerformanceJob: async () => {
+          performanceEnqueued = true;
+        },
       },
       crawlId,
     );
@@ -213,8 +254,12 @@ describe("processCrawlJob", () => {
         prisma,
         runCrawl: fakeRunCrawl,
         cancellationCheckIntervalMs: 10,
-        enqueueAuditJob: async () => { auditEnqueued = true; },
-        enqueuePerformanceJob: async () => { performanceEnqueued = true; },
+        enqueueAuditJob: async () => {
+          auditEnqueued = true;
+        },
+        enqueuePerformanceJob: async () => {
+          performanceEnqueued = true;
+        },
       },
       crawlId,
     );
@@ -223,6 +268,30 @@ describe("processCrawlJob", () => {
     expect(finished.status).toBe("CANCELLED");
     expect(auditEnqueued).toBe(false);
     expect(performanceEnqueued).toBe(false);
+  });
+
+  it("does not overwrite cancellation received before the next polling tick", async () => {
+    const { crawlId, cleanup } = await seedCrawl();
+    cleanups.push(cleanup);
+    let enqueued = false;
+    await processCrawlJob(
+      {
+        prisma,
+        cancellationCheckIntervalMs: 60_000,
+        runCrawl: async () => {
+          await prisma.crawl.update({ where: { id: crawlId }, data: { status: "CANCELLED" } });
+          return { pages: [], sitemapUrls: [], robotsTxtFound: false };
+        },
+        enqueueAuditJob: async () => {
+          enqueued = true;
+        },
+      },
+      crawlId,
+    );
+    expect((await prisma.crawl.findUniqueOrThrow({ where: { id: crawlId } })).status).toBe(
+      "CANCELLED",
+    );
+    expect(enqueued).toBe(false);
   });
 
   it("does nothing for a crawl that is already cancelled before processing starts", async () => {
@@ -234,7 +303,9 @@ describe("processCrawlJob", () => {
       throw new Error("should never be called");
     };
 
-    await expect(processCrawlJob({ prisma, runCrawl: fakeRunCrawl }, crawlId)).resolves.toBeUndefined();
+    await expect(
+      processCrawlJob({ prisma, runCrawl: fakeRunCrawl }, crawlId),
+    ).resolves.toBeUndefined();
     const finished = await prisma.crawl.findUniqueOrThrow({ where: { id: crawlId } });
     expect(finished.status).toBe("CANCELLED");
   });

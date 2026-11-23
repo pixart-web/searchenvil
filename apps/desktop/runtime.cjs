@@ -34,9 +34,13 @@ async function vacantPort() {
   return port;
 }
 
-function startProcess(command, args, { cwd, env, log, name }) {
+function startProcess(command, args, { cwd, env, log, name, ipc }) {
   const stream = createWriteStream(log, { flags: "a", mode: 0o600 });
-  const child = spawn(command, args, { cwd, env, stdio: ["ignore", "pipe", "pipe"] });
+  const child = spawn(command, args, {
+    cwd,
+    env,
+    stdio: ipc ? ["ignore", "pipe", "pipe", "ipc"] : ["ignore", "pipe", "pipe"],
+  });
   child.stdout.pipe(stream, { end: false });
   child.stderr.pipe(stream, { end: false });
   stream.once("error", () => child.kill());
@@ -235,8 +239,8 @@ async function startRuntime(resources, data, onFailure) {
       ),
     };
 
-    function supervise(name, command, args, processEnv = env) {
-      const process = startProcess(command, args, { env: processEnv, log: log(name), name });
+    function supervise(name, command, args, processEnv = env, ipc = false) {
+      const process = startProcess(command, args, { env: processEnv, log: log(name), name, ipc });
       processes.push({ ...process, name });
       return process;
     }
@@ -354,7 +358,22 @@ async function startRuntime(resources, data, onFailure) {
     );
     await waitUntilReady(`http://${host}:${webPort}/login`, {}, web, "SearchAnvil interface");
     await access(env.CHROMIUM_EXECUTABLE_PATH);
-    supervise("Worker", node, [path.join(resources, "worker", "dist", "main.js")]);
+    const worker = supervise(
+      "Worker",
+      node,
+      [path.join(resources, "worker", "dist", "main.js")],
+      env,
+      true,
+    );
+    await Promise.race([
+      new Promise((resolve) => worker.child.once("message", resolve)),
+      worker.exited.then((error) => {
+        throw error ?? new Error("Worker exited during startup.");
+      }),
+      delay(15_000, undefined, { ref: false }).then(() => {
+        throw new Error("Worker did not become ready.");
+      }),
+    ]);
 
     for (const process of processes) {
       process.exited.then((error) => {

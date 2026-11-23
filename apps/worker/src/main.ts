@@ -9,6 +9,7 @@ import {
 import { runCrawl } from "@searchanvil/crawler";
 import { createPlaywrightCollector } from "@searchanvil/performance";
 import { prisma } from "@searchanvil/database";
+import { INTERRUPTED, reconcileDesktopWork } from "./desktop-recovery";
 import { logger } from "./logger";
 import { processCrawlJob } from "./crawl/process-crawl-job";
 import { processAuditJob } from "./audit/process-audit-job";
@@ -20,12 +21,18 @@ const CONCURRENCY = Number(process.env.WORKER_CONCURRENCY ?? 5);
 // performance job launches a real browser; see docs/PERFORMANCE.md for why
 // this queue is bounded separately from crawl/audit.
 const PERFORMANCE_CONCURRENCY = Number(process.env.PERFORMANCE_WORKER_CONCURRENCY ?? 1);
+const desktop = process.env.SEARCHANVIL_DESKTOP_CAPABILITY !== undefined;
 const CHROMIUM_EXECUTABLE_PATH = process.env.CHROMIUM_EXECUTABLE_PATH;
 
 const auditQueue = createTypedQueue(QUEUE_NAMES.AUDIT, REDIS_URL);
 const performanceQueue = createTypedQueue(QUEUE_NAMES.PERFORMANCE, REDIS_URL);
 
 async function handleCrawlJob(job: { id?: string; data: CrawlJobData }): Promise<void> {
+  if (
+    desktop &&
+    (await prisma.crawl.findUnique({ where: { id: job.data.crawlId } }))?.status !== "PENDING"
+  )
+    return;
   logger.info("processing crawl job", { jobId: job.id, crawlId: job.data.crawlId });
   await processCrawlJob(
     {
@@ -45,6 +52,12 @@ async function handleCrawlJob(job: { id?: string; data: CrawlJobData }): Promise
 }
 
 async function handleAuditJob(job: { id?: string; data: AuditJobData }): Promise<void> {
+  if (
+    desktop &&
+    (await prisma.auditRun.findUnique({ where: { crawlId: job.data.crawlId } }))?.errorMessage ===
+      INTERRUPTED
+  )
+    return;
   logger.info("processing audit job", { jobId: job.id, crawlId: job.data.crawlId });
   await processAuditJob({ prisma }, job.data.crawlId);
 }
@@ -63,59 +76,92 @@ async function handlePerformanceJob(job: { id?: string; data: PerformanceJobData
   );
 }
 
-const crawlWorker = createTypedWorker(QUEUE_NAMES.CRAWL, REDIS_URL, handleCrawlJob, {
-  concurrency: CONCURRENCY,
-});
-const auditWorker = createTypedWorker(QUEUE_NAMES.AUDIT, REDIS_URL, handleAuditJob, {
-  concurrency: CONCURRENCY,
-});
-const performanceWorker = createTypedWorker(QUEUE_NAMES.PERFORMANCE, REDIS_URL, handlePerformanceJob, {
-  concurrency: PERFORMANCE_CONCURRENCY,
-});
-
-crawlWorker.on("completed", (job) => {
-  logger.info("crawl job completed", { jobId: job.id });
-});
-crawlWorker.on("failed", (job, error) => {
-  logger.error("crawl job failed", { jobId: job?.id, error: error.message });
-});
-auditWorker.on("completed", (job) => {
-  logger.info("audit job completed", { jobId: job.id });
-});
-auditWorker.on("failed", (job, error) => {
-  logger.error("audit job failed", { jobId: job?.id, error: error.message });
-});
-performanceWorker.on("completed", (job) => {
-  logger.info("performance job completed", { jobId: job.id });
-});
-performanceWorker.on("failed", (job, error) => {
-  logger.error("performance job failed", { jobId: job?.id, error: error.message });
-});
-
-if (!CHROMIUM_EXECUTABLE_PATH) {
-  logger.warn(
-    "CHROMIUM_EXECUTABLE_PATH is not set — performance analysis is disabled for this worker instance (crawls/audits are unaffected). See docs/PERFORMANCE.md.",
+async function start(): Promise<void> {
+  if (desktop) {
+    await reconcileDesktopWork(prisma);
+    const queue = createTypedQueue(QUEUE_NAMES.CRAWL, REDIS_URL);
+    try {
+      const queued = await prisma.crawl.findMany({
+        where: { status: "PENDING" },
+        select: { id: true },
+      });
+      for (const { id } of queued) await queue.add("crawl", { crawlId: id }, { jobId: id });
+    } finally {
+      await queue.close();
+    }
+  }
+  const crawlWorker = createTypedWorker(QUEUE_NAMES.CRAWL, REDIS_URL, handleCrawlJob, {
+    concurrency: CONCURRENCY,
+  });
+  const auditWorker = createTypedWorker(QUEUE_NAMES.AUDIT, REDIS_URL, handleAuditJob, {
+    concurrency: CONCURRENCY,
+  });
+  const performanceWorker = createTypedWorker(
+    QUEUE_NAMES.PERFORMANCE,
+    REDIS_URL,
+    handlePerformanceJob,
+    {
+      concurrency: PERFORMANCE_CONCURRENCY,
+    },
   );
-}
 
-logger.info("worker started", {
-  queues: [QUEUE_NAMES.CRAWL, QUEUE_NAMES.AUDIT, QUEUE_NAMES.PERFORMANCE],
-  concurrency: CONCURRENCY,
-  performanceConcurrency: PERFORMANCE_CONCURRENCY,
-});
+  crawlWorker.on("completed", (job) => {
+    logger.info("crawl job completed", { jobId: job.id });
+  });
+  crawlWorker.on("failed", (job, error) => {
+    logger.error("crawl job failed", { jobId: job?.id, error: error.message });
+  });
+  auditWorker.on("completed", (job) => {
+    logger.info("audit job completed", { jobId: job.id });
+  });
+  auditWorker.on("failed", (job, error) => {
+    logger.error("audit job failed", { jobId: job?.id, error: error.message });
+  });
+  performanceWorker.on("completed", (job) => {
+    logger.info("performance job completed", { jobId: job.id });
+  });
+  performanceWorker.on("failed", (job, error) => {
+    logger.error("performance job failed", { jobId: job?.id, error: error.message });
+  });
 
-async function shutdown(signal: string): Promise<void> {
-  logger.info("shutting down", { signal });
+  if (!CHROMIUM_EXECUTABLE_PATH) {
+    logger.warn(
+      "CHROMIUM_EXECUTABLE_PATH is not set — performance analysis is disabled for this worker instance (crawls/audits are unaffected). See docs/PERFORMANCE.md.",
+    );
+  }
+
+  logger.info("worker started", {
+    queues: [QUEUE_NAMES.CRAWL, QUEUE_NAMES.AUDIT, QUEUE_NAMES.PERFORMANCE],
+    concurrency: CONCURRENCY,
+    performanceConcurrency: PERFORMANCE_CONCURRENCY,
+  });
+
+  async function shutdown(signal: string): Promise<void> {
+    logger.info("shutting down", { signal });
+    await Promise.all([
+      crawlWorker.close(),
+      auditWorker.close(),
+      performanceWorker.close(),
+      auditQueue.close(),
+      performanceQueue.close(),
+    ]);
+    await prisma.$disconnect();
+    process.exit(0);
+  }
+
+  process.on("SIGTERM", () => void shutdown("SIGTERM"));
+  process.on("SIGINT", () => void shutdown("SIGINT"));
+
   await Promise.all([
-    crawlWorker.close(),
-    auditWorker.close(),
-    performanceWorker.close(),
-    auditQueue.close(),
-    performanceQueue.close(),
+    crawlWorker.waitUntilReady(),
+    auditWorker.waitUntilReady(),
+    performanceWorker.waitUntilReady(),
   ]);
-  await prisma.$disconnect();
-  process.exit(0);
+  if (process.connected) process.send?.("ready");
 }
-
-process.on("SIGTERM", () => void shutdown("SIGTERM"));
-process.on("SIGINT", () => void shutdown("SIGINT"));
+void start().catch((error) => {
+  logger.error("worker startup failed", {
+    message: error instanceof Error ? error.message : String(error),
+  });
+  process.exit(1);
+});

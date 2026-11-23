@@ -1,6 +1,6 @@
 const { app, BrowserWindow, dialog, ipcMain, Menu, session } = require("electron");
 const path = require("node:path");
-const { startRuntime } = require("./runtime.cjs");
+const { launchSupervisor } = require("./supervisor-client.cjs");
 
 app.setName("SearchAnvil");
 
@@ -9,7 +9,6 @@ let runtime;
 let starting;
 let failure;
 let quitting = false;
-let shutdownComplete = false;
 
 function isApplicationUrl(url) {
   try {
@@ -142,7 +141,6 @@ if (!app.requestSingleInstanceLock()) {
 } else {
   app.on("second-instance", () => window?.focus());
   app.on("before-quit", (event) => {
-    if (shutdownComplete) return;
     event.preventDefault();
     if (quitting) return;
     quitting = true;
@@ -150,8 +148,7 @@ if (!app.requestSingleInstanceLock()) {
       .then((instance) => instance?.stop())
       .catch(() => {})
       .finally(() => {
-        shutdownComplete = true;
-        app.quit();
+        app.exit(0);
       });
   });
   app
@@ -176,7 +173,10 @@ if (!app.requestSingleInstanceLock()) {
       const resources = app.isPackaged
         ? path.join(process.resourcesPath, "runtime")
         : path.join(__dirname, "build", "runtime");
-      starting = startRuntime(resources, app.getPath("userData"), runtimeFailed);
+      starting = launchSupervisor(
+        { resources, data: app.getPath("userData"), packaged: app.isPackaged },
+        runtimeFailed,
+      );
       runtime = await starting;
       openWindow(profile);
     })

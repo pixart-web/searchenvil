@@ -54,3 +54,31 @@ test("gateway gates renderer traffic and forwards API credentials only to the AP
   assert.equal(observed[1].headers["x-searchanvil-desktop-capability"], capability);
   assert.equal(observed[1].url, "/api/v1/organizations");
 });
+
+test("missing runtime binaries fail before an application endpoint is returned", async (t) => {
+  const { mkdtemp, rm } = require("node:fs/promises");
+  const os = require("node:os");
+  const path = require("node:path");
+  const { startRuntime } = require("./runtime.cjs");
+  const profile = await mkdtemp(path.join(os.tmpdir(), "anvil-qa-missing-"));
+  t.after(() => rm(profile, { recursive: true, force: true }));
+  await assert.rejects(
+    startRuntime(path.join(profile, "missing"), profile, () => {}),
+    /database-init failed/,
+  );
+});
+
+test("a profile path that is not a directory fails closed", async (t) => {
+  const { mkdtemp, writeFile, rm } = require("node:fs/promises");
+  const os = require("node:os");
+  const path = require("node:path");
+  const { startRuntime } = require("./runtime.cjs");
+  const profile = await mkdtemp(path.join(os.tmpdir(), "anvil-qa-storage-"));
+  t.after(() => rm(profile, { recursive: true, force: true }));
+  const file = path.join(profile, "profile");
+  await writeFile(file, "existing data");
+  await assert.rejects(
+    startRuntime(profile, file, () => {}),
+    { code: "ENOTDIR" },
+  );
+});

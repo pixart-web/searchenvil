@@ -51,10 +51,11 @@ export async function processCrawlJob(deps: ProcessCrawlJobDeps, crawlId: string
   }, deps.cancellationCheckIntervalMs ?? 2000);
 
   try {
-    await prisma.crawl.update({
-      where: { id: crawlId },
+    const claimed = await prisma.crawl.updateMany({
+      where: { id: crawlId, status: { not: "CANCELLED" } },
       data: { status: "DISCOVERING", startedAt: new Date() },
     });
+    if (claimed.count === 0) return;
 
     const configJson = crawl.config as Partial<CrawlConfig> | null;
     const config: CrawlConfig = {
@@ -65,7 +66,11 @@ export async function processCrawlJob(deps: ProcessCrawlJobDeps, crawlId: string
       maxDepth: crawl.maxDepth,
     };
 
-    await prisma.crawl.update({ where: { id: crawlId }, data: { status: "CRAWLING" } });
+    const started = await prisma.crawl.updateMany({
+      where: { id: crawlId, status: "DISCOVERING" },
+      data: { status: "CRAWLING" },
+    });
+    if (started.count === 0) return;
 
     const persistPromises: Promise<string | void>[] = [];
     let persistenceError: Error | undefined;
@@ -98,8 +103,8 @@ export async function processCrawlJob(deps: ProcessCrawlJobDeps, crawlId: string
     await finalizeCrawlLinks(prisma, crawlId, result.pages);
 
     const finalStatus = controller.signal.aborted ? "CANCELLED" : "COMPLETED";
-    await prisma.crawl.update({
-      where: { id: crawlId },
+    const finalized = await prisma.crawl.updateMany({
+      where: { id: crawlId, status: "CRAWLING" },
       data: {
         status: finalStatus,
         finishedAt: new Date(),
@@ -107,6 +112,8 @@ export async function processCrawlJob(deps: ProcessCrawlJobDeps, crawlId: string
         robotsTxtFound: result.robotsTxtFound,
       },
     });
+
+    if (!finalized.count) return;
 
     logger.info("crawl finished", { crawlId, status: finalStatus, pagesCrawled: result.pages.length });
 
@@ -127,8 +134,8 @@ export async function processCrawlJob(deps: ProcessCrawlJobDeps, crawlId: string
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error("crawl failed", { crawlId, error: message });
-    await prisma.crawl.update({
-      where: { id: crawlId },
+    await prisma.crawl.updateMany({
+      where: { id: crawlId, status: { not: "CANCELLED" } },
       data: { status: "FAILED", finishedAt: new Date(), errorMessage: message },
     });
   } finally {

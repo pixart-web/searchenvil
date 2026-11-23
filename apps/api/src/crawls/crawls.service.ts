@@ -32,7 +32,7 @@ export class CrawlsService {
       data: { siteId, status: "PENDING", config: {}, maxPages, maxDepth },
     });
 
-    await this.crawlQueue.add("crawl", { crawlId: crawl.id });
+    await this.crawlQueue.add("crawl", { crawlId: crawl.id }, { jobId: crawl.id });
 
     return crawl;
   }
@@ -296,13 +296,11 @@ export class CrawlsService {
   }
 
   async cancel(organizationId: string, projectId: string, siteId: string, crawlId: string) {
-    const crawl = await this.getOrThrow(organizationId, projectId, siteId, crawlId);
-
-    const terminalStatuses = new Set(["COMPLETED", "FAILED", "CANCELLED"]);
-    if (terminalStatuses.has(crawl.status)) {
-      return crawl;
-    }
-
-    return this.prisma.crawl.update({ where: { id: crawlId }, data: { status: "CANCELLED" } });
+    await this.getOrThrow(organizationId, projectId, siteId, crawlId);
+    await this.prisma.crawl.updateMany({
+      where: { id: crawlId, status: { notIn: ["COMPLETED", "FAILED", "CANCELLED"] } },
+      data: { status: "CANCELLED", finishedAt: new Date() },
+    });
+    return this.prisma.crawl.findUniqueOrThrow({ where: { id: crawlId } });
   }
 }
